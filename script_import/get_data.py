@@ -2,25 +2,31 @@ import platform
 import os
 from colorama import Fore  # color console module
 import argparse  # command-line parsing module
-import re
 
 # Get argument and parse them
-# TODO : tuto => https://docs.python.org/3/howto/argparse.html
+# TODO : tuto => https://docs.python.org/3/howto/argparse.html :
+# il faut donner des paramètres pour localiser le dossier avec les données
+# TODO : ajouter explication dans le README
 parser = argparse.ArgumentParser()
 parser.parse_args()
 
 
-class Data:
+class GetData:
+    # TODO : documentation : see example of documentation at http://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html
     def __init__(self, path):
         # Get OS info :
-        # TODO : à utiliser pour savoir comment se déplacer dans l'arborescence de fichiers
-        self.os_info = platform.uname().system
+        if platform.uname().system == "Windows":
+            self._sign = "\\"
+        else:
+            self._sign = "/"
         if self.check_path_info(path) == 0:
-            self.path_directory = path
-            self.get_gene()
+            self.path_directory = path  # The directory path
+        self.data = {}  # Dictionnaire qui devra conternir toutes les données : ce sera un dictionnaire
+                        # Avec en clé les noms de familles
 
     @staticmethod
     def check_path_info(path):
+        # TODO : documentation
         """
         Check if a given path exists
         :param path: str
@@ -33,64 +39,98 @@ class Data:
             print(Ae)
             print(Fore.RED + "ERROR : Unable to open file : the file does not exist OR no read permissions")
 
-    def get_all_directory(self):
+    def get_all_directories_path(self):
+        # TODO : documentation
         """
-        Get path to the all data directory
-        :return: alignments path, expression_levels path, tree path, seq2Sp path
+        :return: alignments, expression_levels, tree, seq2sp
         """
-        # TODO : make it work for linux !
-        self.check_path_info(self.path_directory)
-        alignments = self.path_directory + "\\Alignments"
-        expression_levels = self.path_directory + "\\ExpressionLevels"
-        tree = self.path_directory + "\\GeneTrees"
-        seq2Sp = self.path_directory + "\\Seq2SpTab"
+        alignments = self.path_directory + self._sign + "Alignments"
         self.check_path_info(alignments)
+        expression_levels = self.path_directory + self._sign + "ExpressionLevels"
         self.check_path_info(expression_levels)
+        tree = self.path_directory + self._sign + "GeneTrees"
         self.check_path_info(tree)
-        self.check_path_info(seq2Sp)
-        return alignments, expression_levels, tree, seq2Sp
+        seq2sp = self.path_directory + self._sign + "Seq2SpTab"
+        self.check_path_info(seq2sp)
+        return alignments, expression_levels, tree, seq2sp
 
-    def get_family(self):
+    @staticmethod
+    def _extract_families_names(directory):
+        # TODO : documentation
         """
-        Get family names
-        :return: liste a list with all the family names
+        Extract families names from filename in a specified directory
+        :return: l a list with all the family names
         """
-        liste = []
-        alignments = self.get_all_directory()[0]
-        files = os.listdir(alignments)
+        l = []
+        files = os.listdir(directory)
         for file in files:
             if "fasta" in file:
-                liste.append(file[:-6])
-        return liste
+                l.append(file[:-6])
+            elif "_Seq2Sp.tsv" in file:
+                l.append(file[:-11])
+        return l
 
-    def get_gene(self, family_name):
+    def _init_data(self):
+        # TODO : documentation
         """
-        Get gene names for a given family
+        Initialize self.data a dictionary of data with all the family names
+        :return: 0 if all went well
+        """
+        alignments = self.get_all_directories_path()[0]  # TODO : pour le moment on ne prend en compte que les noms de familles dans le dossier Alignments. Essayé de le faire toutes les dossiers
+        family = self._extract_families_names(alignments)
+        for i in family:
+            self.data[i] = []
+
+    def init_gene_from_alignments_for_family(self, family_name): # TODO : faire en sorte que ça marche auto pour chaque famille. Ce sera fait à l'aide d'une nouvelle fonction éventuellement.
+        # TODO : documentation
+        """
         :param family_name: str => a family name
         :return: gene_dict: dict => a dictionary of all the genes for the given family
         """
-        gene_dict = {}
         gene_name = []
-        alignments = self.get_all_directory()[0]
-        file = alignments + "\\" + family_name + ".fasta"
+        self._init_data()  # initialize data dictionary with all the families name
+        alignments = self.get_all_directories_path()[0]
+        file = alignments + self._sign + family_name + ".fasta"
         f = open(file, "r")
-        for line in f.readlines():
+        for line in f.readlines():  # TODO : gestion erreurs
             if line[0] == ">":
                 gene_name.append(line[1:line.find("_")])
-            gene_dict[family_name] = gene_name
+            self.data[family_name] = gene_name
             f.close()
-        return gene_dict
+        return 0
 
+    # TODO : faire le lien entre un gène et une espèce => faire en sorte que dans self.data : famille est une clé de gène,
+    # TODO : suite : gène est une clé d'espèce, d'expression et d'alignement. L'alignement est une clé d'arbre.
+    # TODO: suite : expressio est une clé de condition, d'organe et de méthode d'expression.
+
+    def get_organ(self, file):
+        # TODO : documentation
+        organ = None
+        f = open(file, "r")
+        for line in f.readlines():
+            if line[:19] == "RNA_seq_condition: ":
+                organ = line[19:]
+        f.close()
+        return organ
+
+    def get_tree(self, family_name):
+        # TODO : documentation
+        gene_dict = {}
+        tree = []
+        genetree = self.get_all_directories_path()[2]
+        file = genetree + self._sign + family_name + ".tree"
+        f = open(file, "r")
+        for line in f:
+            tree = line
+        f.close()
+        return tree
 
 
 # TODO : replace with parse argument :
 # path to the directory with data to import :
 path_directory = "C:\\Users\sumja_000\Documents\COURS\Projet2\données\ProjetM1BioInfo\Version1"
-
-data = Data(path_directory)
-data.get_all_directory()
-data.get_family()
-print(data.get_gene("F00000"))
-
-# Check if the given path exists :
-# check_path_info(path_directory)
+# Tests :
+data = GetData(path_directory)
+data.get_all_directories_path()
+data.init_gene_from_alignments_for_family("F00000")
+print(data.data)
