@@ -10,176 +10,228 @@
     <schema id="4" parent="1" name="mysql"/>
     <schema id="5" parent="1" name="performance_schema"/>
     <schema id="6" parent="1" name="sys"/>
-    <table id="7" parent="2" name="alignment"/>
-    <table id="8" parent="2" name="conditions"/>
-    <table id="9" parent="2" name="expression"/>
-    <table id="10" parent="2" name="expression_method"/>
-    <table id="11" parent="2" name="gene_family"/>
-    <table id="12" parent="2" name="gene_family_has_genes"/>
-    <table id="13" parent="2" name="genes"/>
-    <table id="14" parent="2" name="genes_has_expression"/>
-    <table id="15" parent="2" name="organs"/>
-    <table id="16" parent="2" name="species"/>
-    <table id="17" parent="2" name="species_has_genes"/>
-    <table id="18" parent="2" name="tree"/>
-    <column id="19" parent="7" name="idalignment">
+    <table id="7" parent="2" name="aligned_sequence"/>
+    <table id="8" parent="2" name="alignment"/>
+    <table id="9" parent="2" name="alignment_has_aligned_sequence"/>
+    <table id="10" parent="2" name="conditions"/>
+    <table id="11" parent="2" name="expression"/>
+    <table id="12" parent="2" name="expression_method"/>
+    <table id="13" parent="2" name="gene_family"/>
+    <table id="14" parent="2" name="genes"/>
+    <table id="15" parent="2" name="genes_has_expression"/>
+    <table id="16" parent="2" name="organs"/>
+    <table id="17" parent="2" name="species"/>
+    <table id="18" parent="2" name="species_has_genes"/>
+    <column id="19" parent="7" name="idaligned_sequence">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="20" parent="7" name="alignment_data">
+    <column id="20" parent="7" name="sequence">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
-    </column>
-    <column id="21" parent="7" name="genes_idgenes">
-      <Position>3</Position>
-      <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="22" parent="7" name="tree_idtree">
-      <Position>4</Position>
-      <DataType>int(11)|0</DataType>
-      <NotNull>1</NotNull>
-    </column>
-    <index id="23" parent="7" name="alignment_data_UNIQUE">
-      <ColNames>alignment_data</ColNames>
+    <index id="21" parent="7" name="idaligned_sequence_UNIQUE">
+      <ColNames>idaligned_sequence</ColNames>
       <Unique>1</Unique>
     </index>
-    <index id="24" parent="7" name="fk_alignment_genes1_idx">
-      <ColNames>genes_idgenes</ColNames>
-    </index>
-    <index id="25" parent="7" name="fk_alignment_tree1_idx">
-      <ColNames>tree_idtree</ColNames>
-    </index>
-    <index id="26" parent="7" name="idalignment_UNIQUE">
+    <key id="22" parent="7" name="PRIMARY">
+      <ColNames>idaligned_sequence</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="23" parent="7" name="idaligned_sequence_UNIQUE">
+      <ColNames>idaligned_sequence</ColNames>
+      <UnderlyingIndexName>idaligned_sequence_UNIQUE</UnderlyingIndexName>
+    </key>
+    <column id="24" parent="8" name="idalignment">
+      <Position>1</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="25" parent="8" name="gene_family_idgene_family">
+      <Position>2</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="26" parent="8" name="tree">
+      <Position>3</Position>
+      <DataType>varchar(45)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="27" parent="8" name="idalignment_UNIQUE">
       <ColNames>idalignment</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="27" parent="7" name="PRIMARY">
+    <index id="28" parent="8" name="fk_alignment_gene_family1_idx">
+      <ColNames>gene_family_idgene_family</ColNames>
+    </index>
+    <index id="29" parent="8" name="tree_UNIQUE">
+      <ColNames>tree</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="30" parent="8" name="PRIMARY">
       <ColNames>idalignment
-genes_idgenes
-tree_idtree</ColNames>
+gene_family_idgene_family</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="28" parent="7" name="idalignment_UNIQUE">
+    <key id="31" parent="8" name="idalignment_UNIQUE">
       <ColNames>idalignment</ColNames>
       <UnderlyingIndexName>idalignment_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="29" parent="7" name="alignment_data_UNIQUE">
-      <ColNames>alignment_data</ColNames>
-      <UnderlyingIndexName>alignment_data_UNIQUE</UnderlyingIndexName>
+    <key id="32" parent="8" name="tree_UNIQUE">
+      <ColNames>tree</ColNames>
+      <UnderlyingIndexName>tree_UNIQUE</UnderlyingIndexName>
     </key>
-    <foreign-key id="30" parent="7" name="fk_alignment_genes1">
-      <ColNames>genes_idgenes</ColNames>
+    <foreign-key id="33" parent="8" name="fk_alignment_gene_family1">
+      <ColNames>gene_family_idgene_family</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
-      <RefTableName>genes</RefTableName>
-      <RefColNames>idgenes</RefColNames>
+      <RefTableName>gene_family</RefTableName>
+      <RefColNames>idgene_family</RefColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="31" parent="7" name="fk_alignment_tree1">
-      <ColNames>tree_idtree</ColNames>
+    <column id="34" parent="9" name="alignment_idalignment">
+      <Position>1</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="35" parent="9" name="aligned_sequence_idaligned_sequence">
+      <Position>2</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="36" parent="9" name="fk_alignment_has_aligned_sequence_aligned_sequence1_idx">
+      <ColNames>aligned_sequence_idaligned_sequence</ColNames>
+    </index>
+    <index id="37" parent="9" name="fk_alignment_has_aligned_sequence_alignment1_idx">
+      <ColNames>alignment_idalignment</ColNames>
+    </index>
+    <key id="38" parent="9" name="PRIMARY">
+      <ColNames>alignment_idalignment
+aligned_sequence_idaligned_sequence</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="39" parent="9" name="fk_alignment_has_aligned_sequence_alignment1">
+      <ColNames>alignment_idalignment</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
-      <RefTableName>tree</RefTableName>
-      <RefColNames>idtree</RefColNames>
+      <RefTableName>alignment</RefTableName>
+      <RefColNames>idalignment</RefColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <column id="32" parent="8" name="idconditions">
+    <foreign-key id="40" parent="9" name="fk_alignment_has_aligned_sequence_aligned_sequence1">
+      <ColNames>aligned_sequence_idaligned_sequence</ColNames>
+      <RefSchemaName>mydb</RefSchemaName>
+      <RefTableName>aligned_sequence</RefTableName>
+      <RefColNames>idaligned_sequence</RefColNames>
+      <OnUpdate>no-action</OnUpdate>
+      <OnDelete>no-action</OnDelete>
+    </foreign-key>
+    <column id="41" parent="10" name="idconditions">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="33" parent="8" name="dvp_stage">
+    <column id="42" parent="10" name="dvp_stage">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="34" parent="8" name="state">
+    <column id="43" parent="10" name="subcondition">
       <Position>3</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="35" parent="8" name="idconditions_UNIQUE">
+    <column id="44" parent="10" name="condition_type">
+      <Position>4</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <column id="45" parent="10" name="subcondition_type">
+      <Position>5</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <index id="46" parent="10" name="idconditions_UNIQUE">
       <ColNames>idconditions</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="36" parent="8" name="PRIMARY">
+    <key id="47" parent="10" name="PRIMARY">
       <ColNames>idconditions</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="37" parent="8" name="idconditions_UNIQUE">
+    <key id="48" parent="10" name="idconditions_UNIQUE">
       <ColNames>idconditions</ColNames>
       <UnderlyingIndexName>idconditions_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="38" parent="9" name="idexpression">
+    <column id="49" parent="11" name="idexpression">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="39" parent="9" name="length">
+    <column id="50" parent="11" name="length">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="40" parent="9" name="eff_count">
+    <column id="51" parent="11" name="eff_count">
       <Position>3</Position>
       <DataType>float|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="41" parent="9" name="est_count">
+    <column id="52" parent="11" name="est_count">
       <Position>4</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="42" parent="9" name="conditions_idconditions">
+    <column id="53" parent="11" name="conditions_idconditions">
       <Position>6</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="43" parent="9" name="organs_idorgans">
+    <column id="54" parent="11" name="organs_idorgans">
       <Position>7</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="44" parent="9" name="expression_level">
+    <column id="55" parent="11" name="expression_level">
       <Position>5</Position>
       <DataType>float|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="45" parent="9" name="expression_method_idexpression_method">
+    <column id="56" parent="11" name="expression_method_idexpression_method">
       <Position>8</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="46" parent="9" name="fk_expression_conditions1_idx">
+    <index id="57" parent="11" name="fk_expression_conditions1_idx">
       <ColNames>conditions_idconditions</ColNames>
     </index>
-    <index id="47" parent="9" name="fk_expression_organs1_idx">
+    <index id="58" parent="11" name="fk_expression_organs1_idx">
       <ColNames>organs_idorgans</ColNames>
     </index>
-    <index id="48" parent="9" name="idexpression_UNIQUE">
+    <index id="59" parent="11" name="idexpression_UNIQUE">
       <ColNames>idexpression</ColNames>
       <Unique>1</Unique>
     </index>
-    <index id="49" parent="9" name="fk_expression_expression_method1_idx">
+    <index id="60" parent="11" name="fk_expression_expression_method1_idx">
       <ColNames>expression_method_idexpression_method</ColNames>
     </index>
-    <key id="50" parent="9" name="PRIMARY">
+    <key id="61" parent="11" name="PRIMARY">
       <ColNames>idexpression
 conditions_idconditions
 organs_idorgans
 expression_method_idexpression_method</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="51" parent="9" name="idexpression_UNIQUE">
+    <key id="62" parent="11" name="idexpression_UNIQUE">
       <ColNames>idexpression</ColNames>
       <UnderlyingIndexName>idexpression_UNIQUE</UnderlyingIndexName>
     </key>
-    <foreign-key id="52" parent="9" name="fk_expression_conditions1">
+    <foreign-key id="63" parent="11" name="fk_expression_conditions1">
       <ColNames>conditions_idconditions</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>conditions</RefTableName>
@@ -187,7 +239,7 @@ expression_method_idexpression_method</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="53" parent="9" name="fk_expression_organs1">
+    <foreign-key id="64" parent="11" name="fk_expression_organs1">
       <ColNames>organs_idorgans</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>organs</RefTableName>
@@ -195,7 +247,7 @@ expression_method_idexpression_method</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="54" parent="9" name="fk_expression_expression_method1">
+    <foreign-key id="65" parent="11" name="fk_expression_expression_method1">
       <ColNames>expression_method_idexpression_method</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>expression_method</RefTableName>
@@ -203,169 +255,170 @@ expression_method_idexpression_method</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <column id="55" parent="10" name="idexpression_method">
+    <column id="66" parent="12" name="idexpression_method">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="56" parent="10" name="expression_method_name">
+    <column id="67" parent="12" name="expression_method_name">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="57" parent="10" name="idmethod_expression_UNIQUE">
+    <column id="68" parent="12" name="quantification_tool">
+      <Position>3</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <index id="69" parent="12" name="idmethod_expression_UNIQUE">
       <ColNames>idexpression_method</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="58" parent="10" name="PRIMARY">
+    <key id="70" parent="12" name="PRIMARY">
       <ColNames>idexpression_method</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="59" parent="10" name="idmethod_expression_UNIQUE">
+    <key id="71" parent="12" name="idmethod_expression_UNIQUE">
       <ColNames>idexpression_method</ColNames>
       <UnderlyingIndexName>idmethod_expression_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="60" parent="11" name="idgene_family">
+    <column id="72" parent="13" name="idgene_family">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="61" parent="11" name="gene_family_name">
+    <column id="73" parent="13" name="gene_family_name">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="62" parent="11" name="gene_family_name_UNIQUE">
+    <index id="74" parent="13" name="gene_family_name_UNIQUE">
       <ColNames>gene_family_name</ColNames>
       <Unique>1</Unique>
     </index>
-    <index id="63" parent="11" name="idgene_family_UNIQUE">
+    <index id="75" parent="13" name="idgene_family_UNIQUE">
       <ColNames>idgene_family</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="64" parent="11" name="PRIMARY">
+    <key id="76" parent="13" name="PRIMARY">
       <ColNames>idgene_family</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="65" parent="11" name="idgene_family_UNIQUE">
+    <key id="77" parent="13" name="idgene_family_UNIQUE">
       <ColNames>idgene_family</ColNames>
       <UnderlyingIndexName>idgene_family_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="66" parent="11" name="gene_family_name_UNIQUE">
+    <key id="78" parent="13" name="gene_family_name_UNIQUE">
       <ColNames>gene_family_name</ColNames>
       <UnderlyingIndexName>gene_family_name_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="67" parent="12" name="gene_family_id">
+    <column id="79" parent="14" name="idgenes">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="68" parent="12" name="genes_id">
+    <column id="80" parent="14" name="genes_name">
       <Position>2</Position>
+      <DataType>varchar(45)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="81" parent="14" name="Ensembl_ID">
+      <Position>3</Position>
+      <DataType>varchar(45)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="82" parent="14" name="aligned_sequence_idaligned_sequence">
+      <Position>4</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="69" parent="12" name="fk_gene_family_has_genes_genes1_idx">
-      <ColNames>genes_id</ColNames>
+    <column id="83" parent="14" name="gene_family_idgene_family">
+      <Position>5</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="84" parent="14" name="Ensembl_ID_UNIQUE">
+      <ColNames>Ensembl_ID</ColNames>
+      <Unique>1</Unique>
     </index>
-    <index id="70" parent="12" name="fk_gene_family_has_genes_gene_family_idx">
-      <ColNames>gene_family_id</ColNames>
+    <index id="85" parent="14" name="idgenes_UNIQUE">
+      <ColNames>idgenes</ColNames>
+      <Unique>1</Unique>
     </index>
-    <key id="71" parent="12" name="PRIMARY">
-      <ColNames>gene_family_id
-genes_id</ColNames>
+    <index id="86" parent="14" name="fk_genes_aligned_sequence1_idx">
+      <ColNames>aligned_sequence_idaligned_sequence</ColNames>
+    </index>
+    <index id="87" parent="14" name="fk_genes_gene_family1_idx">
+      <ColNames>gene_family_idgene_family</ColNames>
+    </index>
+    <key id="88" parent="14" name="PRIMARY">
+      <ColNames>idgenes
+aligned_sequence_idaligned_sequence
+gene_family_idgene_family</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="72" parent="12" name="fk_gene_family_has_genes_gene_family">
-      <ColNames>gene_family_id</ColNames>
+    <key id="89" parent="14" name="idgenes_UNIQUE">
+      <ColNames>idgenes</ColNames>
+      <UnderlyingIndexName>idgenes_UNIQUE</UnderlyingIndexName>
+    </key>
+    <key id="90" parent="14" name="Ensembl_ID_UNIQUE">
+      <ColNames>Ensembl_ID</ColNames>
+      <UnderlyingIndexName>Ensembl_ID_UNIQUE</UnderlyingIndexName>
+    </key>
+    <foreign-key id="91" parent="14" name="fk_genes_aligned_sequence1">
+      <ColNames>aligned_sequence_idaligned_sequence</ColNames>
+      <RefSchemaName>mydb</RefSchemaName>
+      <RefTableName>aligned_sequence</RefTableName>
+      <RefColNames>idaligned_sequence</RefColNames>
+      <OnUpdate>no-action</OnUpdate>
+      <OnDelete>no-action</OnDelete>
+    </foreign-key>
+    <foreign-key id="92" parent="14" name="fk_genes_gene_family1">
+      <ColNames>gene_family_idgene_family</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>gene_family</RefTableName>
       <RefColNames>idgene_family</RefColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="73" parent="12" name="fk_gene_family_has_genes_genes1">
-      <ColNames>genes_id</ColNames>
-      <RefSchemaName>mydb</RefSchemaName>
-      <RefTableName>genes</RefTableName>
-      <RefColNames>idgenes</RefColNames>
-      <OnUpdate>no-action</OnUpdate>
-      <OnDelete>no-action</OnDelete>
-    </foreign-key>
-    <column id="74" parent="13" name="idgenes">
-      <Position>1</Position>
-      <DataType>int(11)|0</DataType>
-      <NotNull>1</NotNull>
-      <SequenceIdentity>1</SequenceIdentity>
-    </column>
-    <column id="75" parent="13" name="genes_name">
-      <Position>2</Position>
-      <DataType>varchar(45)|0</DataType>
-      <NotNull>1</NotNull>
-    </column>
-    <column id="76" parent="13" name="Ensembl_ID">
-      <Position>3</Position>
-      <DataType>varchar(45)|0</DataType>
-      <NotNull>1</NotNull>
-    </column>
-    <index id="77" parent="13" name="Ensembl_ID_UNIQUE">
-      <ColNames>Ensembl_ID</ColNames>
-      <Unique>1</Unique>
-    </index>
-    <index id="78" parent="13" name="idgenes_UNIQUE">
-      <ColNames>idgenes</ColNames>
-      <Unique>1</Unique>
-    </index>
-    <key id="79" parent="13" name="PRIMARY">
-      <ColNames>idgenes</ColNames>
-      <Primary>1</Primary>
-    </key>
-    <key id="80" parent="13" name="idgenes_UNIQUE">
-      <ColNames>idgenes</ColNames>
-      <UnderlyingIndexName>idgenes_UNIQUE</UnderlyingIndexName>
-    </key>
-    <key id="81" parent="13" name="Ensembl_ID_UNIQUE">
-      <ColNames>Ensembl_ID</ColNames>
-      <UnderlyingIndexName>Ensembl_ID_UNIQUE</UnderlyingIndexName>
-    </key>
-    <column id="82" parent="14" name="genes_idgenes">
+    <column id="93" parent="15" name="genes_idgenes">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="83" parent="14" name="expression_idexpression">
+    <column id="94" parent="15" name="expression_idexpression">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="84" parent="14" name="expression_conditions_idconditions">
+    <column id="95" parent="15" name="expression_conditions_idconditions">
       <Position>3</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="85" parent="14" name="expression_organs_idorgans">
+    <column id="96" parent="15" name="expression_organs_idorgans">
       <Position>4</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="86" parent="14" name="fk_genes_has_expression_expression1_idx">
+    <index id="97" parent="15" name="fk_genes_has_expression_expression1_idx">
       <ColNames>expression_idexpression
 expression_conditions_idconditions
 expression_organs_idorgans</ColNames>
     </index>
-    <index id="87" parent="14" name="fk_genes_has_expression_genes1_idx">
+    <index id="98" parent="15" name="fk_genes_has_expression_genes1_idx">
       <ColNames>genes_idgenes</ColNames>
     </index>
-    <key id="88" parent="14" name="PRIMARY">
+    <key id="99" parent="15" name="PRIMARY">
       <ColNames>genes_idgenes
 expression_idexpression
 expression_conditions_idconditions
 expression_organs_idorgans</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="89" parent="14" name="fk_genes_has_expression_genes1">
+    <foreign-key id="100" parent="15" name="fk_genes_has_expression_genes1">
       <ColNames>genes_idgenes</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>genes</RefTableName>
@@ -373,7 +426,7 @@ expression_organs_idorgans</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="90" parent="14" name="fk_genes_has_expression_expression1">
+    <foreign-key id="101" parent="15" name="fk_genes_has_expression_expression1">
       <ColNames>expression_idexpression
 expression_conditions_idconditions
 expression_organs_idorgans</ColNames>
@@ -385,90 +438,122 @@ organs_idorgans</RefColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <column id="91" parent="15" name="idorgans">
+    <column id="102" parent="16" name="idorgans">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="92" parent="15" name="organ_name">
+    <column id="103" parent="16" name="organ_name">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="93" parent="15" name="idorgans_UNIQUE">
+    <index id="104" parent="16" name="idorgans_UNIQUE">
       <ColNames>idorgans</ColNames>
       <Unique>1</Unique>
     </index>
-    <index id="94" parent="15" name="organ_name_UNIQUE">
+    <index id="105" parent="16" name="organ_name_UNIQUE">
       <ColNames>organ_name</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="95" parent="15" name="PRIMARY">
+    <key id="106" parent="16" name="PRIMARY">
       <ColNames>idorgans</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="96" parent="15" name="idorgans_UNIQUE">
+    <key id="107" parent="16" name="idorgans_UNIQUE">
       <ColNames>idorgans</ColNames>
       <UnderlyingIndexName>idorgans_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="97" parent="15" name="organ_name_UNIQUE">
+    <key id="108" parent="16" name="organ_name_UNIQUE">
       <ColNames>organ_name</ColNames>
       <UnderlyingIndexName>organ_name_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="98" parent="16" name="idspecies">
+    <column id="109" parent="17" name="idspecies">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
     </column>
-    <column id="99" parent="16" name="species_namel">
+    <column id="110" parent="17" name="species_name">
       <Position>2</Position>
       <DataType>varchar(45)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="100" parent="16" name="idspecies_UNIQUE">
+    <column id="111" parent="17" name="Species_Taxid">
+      <Position>3</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <column id="112" parent="17" name="Assembly_name">
+      <Position>4</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <column id="113" parent="17" name="Assembly_source">
+      <Position>5</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <column id="114" parent="17" name="Species_Classification">
+      <Position>6</Position>
+      <DataType>varchar(45)|0</DataType>
+    </column>
+    <index id="115" parent="17" name="idspecies_UNIQUE">
       <ColNames>idspecies</ColNames>
       <Unique>1</Unique>
     </index>
-    <index id="101" parent="16" name="species_namel_UNIQUE">
-      <ColNames>species_namel</ColNames>
+    <index id="116" parent="17" name="species_namel_UNIQUE">
+      <ColNames>species_name</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="102" parent="16" name="PRIMARY">
+    <index id="117" parent="17" name="Species_Classification_UNIQUE">
+      <ColNames>Species_Classification</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <index id="118" parent="17" name="Species_Taxid_UNIQUE">
+      <ColNames>Species_Taxid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="119" parent="17" name="PRIMARY">
       <ColNames>idspecies</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="103" parent="16" name="idspecies_UNIQUE">
+    <key id="120" parent="17" name="idspecies_UNIQUE">
       <ColNames>idspecies</ColNames>
       <UnderlyingIndexName>idspecies_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="104" parent="16" name="species_namel_UNIQUE">
-      <ColNames>species_namel</ColNames>
+    <key id="121" parent="17" name="species_namel_UNIQUE">
+      <ColNames>species_name</ColNames>
       <UnderlyingIndexName>species_namel_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="105" parent="17" name="species_idspecies">
+    <key id="122" parent="17" name="Species_Taxid_UNIQUE">
+      <ColNames>Species_Taxid</ColNames>
+      <UnderlyingIndexName>Species_Taxid_UNIQUE</UnderlyingIndexName>
+    </key>
+    <key id="123" parent="17" name="Species_Classification_UNIQUE">
+      <ColNames>Species_Classification</ColNames>
+      <UnderlyingIndexName>Species_Classification_UNIQUE</UnderlyingIndexName>
+    </key>
+    <column id="124" parent="18" name="species_idspecies">
       <Position>1</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="106" parent="17" name="genes_idgenes">
+    <column id="125" parent="18" name="genes_idgenes">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="107" parent="17" name="fk_species_has_genes_genes1_idx">
+    <index id="126" parent="18" name="fk_species_has_genes_genes1_idx">
       <ColNames>genes_idgenes</ColNames>
     </index>
-    <index id="108" parent="17" name="fk_species_has_genes_species1_idx">
+    <index id="127" parent="18" name="fk_species_has_genes_species1_idx">
       <ColNames>species_idspecies</ColNames>
     </index>
-    <key id="109" parent="17" name="PRIMARY">
+    <key id="128" parent="18" name="PRIMARY">
       <ColNames>species_idspecies
 genes_idgenes</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="110" parent="17" name="fk_species_has_genes_species1">
+    <foreign-key id="129" parent="18" name="fk_species_has_genes_species1">
       <ColNames>species_idspecies</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>species</RefTableName>
@@ -476,7 +561,7 @@ genes_idgenes</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <foreign-key id="111" parent="17" name="fk_species_has_genes_genes1">
+    <foreign-key id="130" parent="18" name="fk_species_has_genes_genes1">
       <ColNames>genes_idgenes</ColNames>
       <RefSchemaName>mydb</RefSchemaName>
       <RefTableName>genes</RefTableName>
@@ -484,35 +569,5 @@ genes_idgenes</ColNames>
       <OnUpdate>no-action</OnUpdate>
       <OnDelete>no-action</OnDelete>
     </foreign-key>
-    <column id="112" parent="18" name="idtree">
-      <Position>1</Position>
-      <DataType>int(11)|0</DataType>
-      <NotNull>1</NotNull>
-      <SequenceIdentity>1</SequenceIdentity>
-    </column>
-    <column id="113" parent="18" name="tree_data">
-      <Position>2</Position>
-      <DataType>varchar(45)|0</DataType>
-    </column>
-    <index id="114" parent="18" name="idtree_UNIQUE">
-      <ColNames>idtree</ColNames>
-      <Unique>1</Unique>
-    </index>
-    <index id="115" parent="18" name="tree_data_UNIQUE">
-      <ColNames>tree_data</ColNames>
-      <Unique>1</Unique>
-    </index>
-    <key id="116" parent="18" name="PRIMARY">
-      <ColNames>idtree</ColNames>
-      <Primary>1</Primary>
-    </key>
-    <key id="117" parent="18" name="idtree_UNIQUE">
-      <ColNames>idtree</ColNames>
-      <UnderlyingIndexName>idtree_UNIQUE</UnderlyingIndexName>
-    </key>
-    <key id="118" parent="18" name="tree_data_UNIQUE">
-      <ColNames>tree_data</ColNames>
-      <UnderlyingIndexName>tree_data_UNIQUE</UnderlyingIndexName>
-    </key>
   </database-model>
 </dataSource>
