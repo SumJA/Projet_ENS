@@ -99,9 +99,11 @@ class GetData:
         Initialize self.data a dictionary of data with all the family names
         :return: 0 if all went well
         """
+        f = {}
         family = self._extract_families_names(self._alignments_path)
         for i in family:
-            self.data[i] = None
+            f[i] = None
+        return f
 
     def extract_all_species(self, filename):
         # TODO : documentation
@@ -199,7 +201,7 @@ class GetData:
         else:
             print(Fore.RED + " ERROR : Can't find expression metadata file : ", file)
 
-    def extract_expression_levels(self, file):
+    def extract_expression_levels(self, file, family):
         # TODO : documentation
         done_family = []
         i = 0
@@ -211,19 +213,19 @@ class GetData:
                     for line in csv.reader(tsv, delimiter="\t"):
                         if i != 0:
                             gene = line[0][:-7]
-                            family = line[0][-6:]
-                            f = family
-                            length = line[1]
-                            eff_length = line[2]
-                            est_counts = line[3]
-                            exp_level = line[4]
-                            l = [length, eff_length, est_counts, exp_level]
-                            exp.append(l)
-                            genes = self.extract_species_for_gene(family)
-                            genes[gene].append(l)
-                            if family not in done_family:
-                                tree = self.extract_tree(family)
-                                self.data[family] = [tree, genes]
+                            while family == line[0][-6:]:
+                                length = line[1]
+                                eff_length = line[2]
+                                est_counts = line[3]
+                                exp_level = line[4]
+                                l = [length, eff_length, est_counts, exp_level]
+                                exp.append(l)
+                                genes = self.extract_species_for_gene(family)
+                                genes[gene].append(l)
+                                if family not in done_family:
+                                    tree = self.extract_tree(family)
+                                    self.data[family] = [tree, genes]
+                                break
                         i += 1
                 return exp
             except OSError:
@@ -231,17 +233,25 @@ class GetData:
         else:
             print(Fore.RED + " ERROR : Can't find expression file : ", file)
 
-    def get_data_for_expression_file(self, file):
+    def get_data_for_expression_file(self, file, family):
         # TODO :documentation
-        self.extract_expression_levels(file)
+        self.extract_expression_levels(file, family)
         return self.data
 
 
-class ImportData(GetData):
+class ImportData():
     # TODO : documentation
     def __init__(self, path):
-        GetData.__init__(self, path)
+        self.getdata = GetData(path)
+        self.all_data = {}
 
+    def import_families(self, file):
+        families = self.getdata.extract_all_families()
+        i = 0
+        for family in families:
+            print(i)
+            i = i+1
+            self.all_data = self.getdata.get_data_for_expression_file(file, family)
 
 # TODO : replace with parse argument :
 # path to the directory with data to import :
@@ -249,5 +259,5 @@ path_directory = "C:\\Users\sumja_000\Documents\COURS\Projet2\données\ProjetM1B
 
 # Tests :
 data = GetData(path_directory)
-data.get_data_for_expression_file("Mus_musculus.KidneyControle.quant.tsv")
-print(data.data)
+import_data = ImportData(path_directory)
+import_data.import_families("Mus_musculus.KidneyRestriction.quant.tsv")
