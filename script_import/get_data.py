@@ -324,40 +324,6 @@ class GetData:
         return self.data
 
 
-class ImportData:
-    """A data importer :
-        Extract then Import the data from a file containing all :
-            - the alignments information
-            - phylogenetic trees
-            - level of expression
-            - information on the species analyzed
-
-    :Attributes: get_data (object): An object of the GetData class
-                 all_data (dict): A dictionary with all the extracted information. The keys are the genes families.
-    """
-    def __init__(self, path: str):
-        """
-
-        :param path (str): Path to the data directory.
-        """
-        self.get_data = GetData(path)
-        self.all_data = {}
-
-    def import_families(self, file: str):
-        # TODO : documentation
-        families = self.get_data.extract_all_families()
-        i = 0
-        for family in families:
-            print(i)
-            i += 1
-            self.all_data = self.get_data.get_data_for_expression_file(file, family)
-
-
 # TODO : replace with parse argument :
 # path to the directory with data to import :
 path_directory = "C:\\Users\sumja_000\Documents\COURS\Projet2\données\ProjetM1BioInfo\Version1"
-
-# Tests :
-data = GetData(path_directory)
-import_data = ImportData(path_directory)
-import_data.import_families("Mus_musculus.KidneyRestriction.quant.tsv")
