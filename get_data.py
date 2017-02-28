@@ -1,4 +1,4 @@
-##Test1 Olivier
+##Test2 Olivier
 import platform
 import os
 from colorama import Fore  # color console module
