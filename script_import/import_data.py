@@ -211,7 +211,7 @@ class ImportData:
             add_organs = """INSERT INTO organs(organ_name) VALUES ('%s')""" % organ
             # FIXME : dvp_stage à définir !
             # verifier doublons avec null
-            select_conditions = """SELECT COUNT(*) FROM conditions WHERE dvp_stage IS NULL and subcondition = '%s' and condition_type = '%s' and subcondition_type = '%'""" % (subcondition, cond_type, subcondition_type)
+            select_conditions = """SELECT COUNT(*) FROM conditions WHERE dvp_stage IS NULL and subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s'""" % (subcondition, cond_type, subcondition_type)
             add_conditions = """INSERT INTO conditions(dvp_stage, subcondition, condition_type, subcondition_type) VALUES (NULL , '%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
             add_method = """INSERT INTO expression_method(expression_method_name, quantification_tool) VALUES ('%s','%s')""" % (method_expr, tool)
             try:
