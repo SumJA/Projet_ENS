@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`gene_family` (
   UNIQUE INDEX `idgene_family_UNIQUE` (`idgene_family` ASC),
   UNIQUE INDEX `gene_family_name_UNIQUE` (`gene_family_name` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 58997
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -59,7 +58,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `mydb`.`species` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`species` (
-  `idspecies` INT NOT NULL,
+  `idspecies` INT NOT NULL AUTO_INCREMENT,
   `species_name` VARCHAR(45) NOT NULL,
   `Species_Taxid` VARCHAR(45) NULL DEFAULT NULL,
   `Assembly_name` VARCHAR(45) NULL DEFAULT NULL,
@@ -70,7 +69,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`species` (
   UNIQUE INDEX `species_namel_UNIQUE` (`species_name` ASC),
   UNIQUE INDEX `Species_Taxid_UNIQUE` (`Species_Taxid` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 15
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -129,7 +127,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`aligned_sequence` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 49597
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -148,7 +145,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`conditions` (
   UNIQUE INDEX `idconditions_UNIQUE` (`idconditions` ASC),
   UNIQUE INDEX `conditions_all_uindex` (`dvp_stage` ASC, `subcondition` ASC, `condition_type` ASC, `subcondition_type` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 21
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -182,7 +178,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`expression_method` (
   UNIQUE INDEX `idmethod_expression_UNIQUE` (`idexpression_method` ASC),
   UNIQUE INDEX `expr_name_tool_uindex` (`expression_method_name` ASC, `quantification_tool` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 12
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -198,7 +193,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`organs` (
   UNIQUE INDEX `idorgans_UNIQUE` (`idorgans` ASC),
   UNIQUE INDEX `organ_name_UNIQUE` (`organ_name` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 21
 DEFAULT CHARACTER SET = utf8;
 
 

@@ -334,6 +334,7 @@ class GetData:
                             exp_level = line[4]
                             l = [length, eff_length, est_counts, exp_level]
                             exp.append(l)
+                            break
                     i += 1
             return exp
         except OSError:
@@ -371,6 +372,7 @@ class GetData:
                             big_l.append(expr_methd)
                             # extract gene information with their species_metadata_file and their aligned sequence:
                             genes[gene] = big_l
+                            break
             return genes
         except OSError:
             print(Fore.RED + "ERROR : Failed to open expression file : ", file)

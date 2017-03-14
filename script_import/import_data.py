@@ -44,6 +44,7 @@ class ImportData:
     def import_families(self):
         """
         Imports all families in alignment directory.
+        If you want to import only a specific family from the alignment directory, use the import_a_family method.
 
         :return: None
         """
@@ -61,6 +62,7 @@ class ImportData:
     def import_a_family(self, family: str):
         """
         Imports a family in the database.
+        If you want to import all the families from the alignment directory, use the import_families method.
 
         :param family:
         :return:
@@ -83,13 +85,12 @@ class ImportData:
         """
         species = self._get_data.extract_all_species(species_filename)
         for i in species:
-            print(i)
             sp_name = i[0]
             sp_taxid = i[1]
             asbly_name = i[2]
             asbly_source = i[3]
             sp_classification = i[4]
-            select_species = """SELECT * FROM species WHERE species_name = '%s' and Species_Taxid = '%s'and Assembly_name = '%s' and Assembly_source ='%s' AND Species_Classification = '%s';""" % (sp_name, sp_taxid, asbly_name, asbly_source, sp_classification)
+            select_species = """SELECT COUNT(*) FROM species WHERE species_name = '%s' and Species_Taxid = '%s'and Assembly_name = '%s' and Assembly_source ='%s' AND Species_Classification = '%s';""" % (sp_name, sp_taxid, asbly_name, asbly_source, sp_classification)
             add_species = """INSERT INTO species(species_name, Species_Taxid, Assembly_name, Assembly_source, Species_Classification) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (sp_name, sp_taxid, asbly_name, asbly_source, sp_classification)
             try:
                 self._cursor.execute(select_species)
@@ -107,6 +108,8 @@ class ImportData:
                         self._connexion.rollback()
                     else:
                         self._connexion.commit()
+                else:
+                    print(Fore.RED + "Duplicate entry %s - The insert has been ignored" % i)
 
     def import_organs(self):
         """
@@ -123,6 +126,7 @@ class ImportData:
             organ = info[0]
             add_organs = """INSERT INTO organs(organ_name) VALUES ('%s')""" % organ
             try:
+                print(Fore.GREEN + "Trying to insert name for organ :", organ)
                 self._cursor.execute(add_organs)
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
@@ -144,15 +148,25 @@ class ImportData:
         for info in conditions:
             method_expr = info[1]
             tool = info[2]
-            # FIXME trigger doublons
+            select_mthd = """SELECT COUNT(*) FROM expression_method WHERE expression_method_name = '%s' AND quantification_tool = '%s';""" % (method_expr, tool)
             add_method = """INSERT INTO expression_method(expression_method_name, quantification_tool) VALUES ('%s','%s')""" % (method_expr, tool)
             try:
-                self._cursor.execute(add_method)
+                self._cursor.execute(select_mthd)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
-                self._connexion.rollback()
             else:
-                self._connexion.commit()
+                if count == 0:
+                    try:
+                        print(Fore.GREEN + "Trying to insert expression method : ", method_expr, tool)
+                        self._cursor.execute(add_method)
+                    except mysql.connector.Error as err:
+                        print(Fore.RED + str(err))
+                        self._connexion.rollback()
+                    else:
+                        self._connexion.commit()
+                else:
+                    print(Fore.RED + "Duplicate entry '%s' - The insert has been ignored" % (method_expr + ", " + tool))
 
     def import_condition(self):
         """
@@ -191,6 +205,8 @@ class ImportData:
                         self._connexion.rollback()
                     else:
                         self._connexion.commit()
+                else:
+                    print(Fore.RED + "Duplicate entry '%s' - The insert has been ignored" % (subcondition + ", " + cond_type + ", " + subcondition_type))
 
     def import_organs_expression_method_condition(self):
         """
@@ -213,13 +229,14 @@ class ImportData:
             # verifier doublons avec null
             select_conditions = """SELECT COUNT(*) FROM conditions WHERE dvp_stage IS NULL and subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s'""" % (subcondition, cond_type, subcondition_type)
             add_conditions = """INSERT INTO conditions(dvp_stage, subcondition, condition_type, subcondition_type) VALUES (NULL , '%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
+            select_mthd = """SELECT COUNT(*) FROM expression_method WHERE expression_method_name = '%s' AND quantification_tool = '%s';""" % (
+            method_expr, tool)
             add_method = """INSERT INTO expression_method(expression_method_name, quantification_tool) VALUES ('%s','%s')""" % (method_expr, tool)
             try:
                 self._cursor.execute(select_conditions)
                 count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
-                self._connexion.rollback()
             else:
                 if count == 0:
                     try:
@@ -230,14 +247,29 @@ class ImportData:
                         self._connexion.rollback()
                     else:
                         self._connexion.commit()
+                else:
+                    print(Fore.RED + "Duplicate entry '%s' - The insert has been ignored" % (
+                    subcondition + ", " + cond_type + ", " + subcondition_type))
             try:
-                self._cursor.execute(add_method)
+                self._cursor.execute(select_mthd)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
                 self._connexion.rollback()
             else:
-                self._connexion.commit()
+                if count == 0:
+                    try:
+                        print(Fore.GREEN + "Trying to insert expression method : ", method_expr, tool)
+                        self._cursor.execute(add_method)
+                    except mysql.connector.Error as err:
+                        print(Fore.RED + str(err))
+                        self._connexion.rollback()
+                    else:
+                        self._connexion.commit()
+                else:
+                    print(Fore.RED + "Duplicate entry '%s' - The insert has been ignored" % (method_expr + ", " + tool))
             try:
+                print(Fore.GREEN + "Trying to insert organ : ", organ)
                 self._cursor.execute(add_organs)
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
@@ -255,41 +287,58 @@ class ImportData:
         for gene in genes.keys():
             sequence = genes[gene][0]
             try:
-                select_idgenes_idfamily = """SELECT idgenes, gene_family_idgene_family1 FROM genes WHERE Ensembl_ID = '%s'"""
-                self._cursor.execute(select_idgenes_idfamily)
-                idgene = self._cursor.fetchall()[0][0]
-                idfamily = self._cursor.fetchall()[0][1]
+                select_gene = """SELECT COUNT(*) FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                self._cursor.execute(select_gene)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
-                self._connexion.rollback()
             else:
-                try:
-                    select_alignment = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s'""" % idfamily
-                    self._cursor.execute(select_alignment)
-                    id_alignment = self._cursor.fetchone()[0]
-                except mysql.connector.Error as err:
-                    print(Fore.RED + str(err))
-                    self._connexion.rollback()
-                else:
+                if count != 0:
                     try:
-                        # check if the data already exists :
-                        select_sequence = """SELECT COUNT(*) FROM aligned_sequence WHERE sequence = '%s' and alignment_idalignment = '%s' and genes_idgenes = '%s';""" % (sequence, id_alignment, idgene)
-                        self._cursor.execute(select_sequence)
-                        count = self._cursor.fetchone()[0]
+                        select_idgene = """SELECT idgenes, gene_family_idgene_family1 FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                        self._cursor.execute(select_idgene)
+                        idgene = self._cursor.fetchall()[0][0]
+                        idfamily = self._cursor.fetchall()[0][1]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
-                        self._connexion.rollback()
                     else:
-                        if count == 0:
-                            try:
-                                print(Fore.GREEN + "Trying to insert sequences :", sequence)
-                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment) VALUE('%s', '%s')""" % (sequence, id_alignment)
-                                self._cursor.execute(add_sequence)
-                            except mysql.connector.Error as err:
-                                print(Fore.RED + str(err))
-                                self._connexion.rollback()
+                        try:
+                            select_alignment = """SELECT COUNT(*) FROM Alignment WHERE gene_family_idgene_family = '%s'""" % idfamily
+                            self._cursor.execute(select_alignment)
+                            count = self._cursor.fetchone()[0]
+                        except mysql.connector.Error as err:
+                            print(Fore.RED + str(err))
+                        else:
+                            if count != 0:
+                                try:
+                                    select_idalignment = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s'""" % idfamily
+                                    self._cursor.execute(select_idalignment)
+                                    id_alignment = self._cursor.fetchone()[0]
+                                except mysql.connector.Error as err:
+                                    print(Fore.RED + str(err))
+                                else:
+                                    try:
+                                        # check if the data already exists :
+                                        select_sequence = """SELECT COUNT(*) FROM aligned_sequence WHERE sequence = '%s' and alignment_idalignment = '%s' and genes_idgenes = '%s';""" % (sequence, id_alignment, idgene)
+                                        self._cursor.execute(select_sequence)
+                                        count = self._cursor.fetchone()[0]
+                                    except mysql.connector.Error as err:
+                                        print(Fore.RED + str(err))
+                                    else:
+                                        if count == 0:
+                                            try:
+                                                print(Fore.GREEN + "Trying to insert sequences :", sequence)
+                                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment) VALUE('%s', '%s')""" % (sequence, id_alignment)
+                                                self._cursor.execute(add_sequence)
+                                            except mysql.connector.Error as err:
+                                                print(Fore.RED + str(err))
+                                                self._connexion.rollback()
+                                            else:
+                                                self._connexion.commit()
                             else:
-                                self._connexion.commit()
+                                print(Fore.BLUE + "No alignment found in the database for the sequence : ", sequence)
+                else:
+                    print(Fore.BLUE + "No gene found in the database for the sequence : ", sequence)
 
     def import_alignments(self, family: str):
         """
@@ -319,9 +368,7 @@ class ImportData:
                 if count == 0:
                     try:
                         # insert data into alignment table :
-                        # FIXME : trigger unique tree car c'est un longtext + gestion des doublons
-                        add_tree = """INSERT INTO alignment(gene_family_idgene_family, tree) VALUES('%s', '%s')""" % (
-                        id_family, tree)
+                        add_tree = """INSERT INTO Alignment(gene_family_idgene_family, tree) VALUES('%s', '%s')""" % (id_family, tree)
                         print(Fore.GREEN + "Trying to insert tree for family :", family)
                         self._cursor.execute(add_tree)
                     except mysql.connector.Error as err:
@@ -387,18 +434,30 @@ class ImportData:
         """
         expr = self._get_data.extract_expression_for_family(family=family, file=self.expression_filename)
         for i in expr:
-            lenght = expr[i][0]
-            eff_lenght = expr[i][1]
-            est_counts = expr[i][2]
-            exp_level = expr[i][3]
+            lenght = int(i[0])
+            eff_lenght = float(i[1])
+            est_counts = int(i[2])
+            exp_level = float(i[3])
             try:
-                add_expressionlevel = """INSERT INTO expressionlevel(length, eff_count, est_count, expression_level) VALUES('%s', '%s', '%s', '%s');""" % (lenght, eff_lenght, est_counts, exp_level)
-                self._cursor.execute(add_expressionlevel)
+                select_exprlvl = """SELECT COUNT(*) FROM expressionlevel WHERE length = %s AND eff_count = %s AND est_count = %s AND expression_level = %s;""" % (lenght, eff_lenght, est_counts, exp_level)
+                print(select_exprlvl)
+                self._cursor.execute(select_exprlvl)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
-                self._connexion.rollback()
             else:
-                self._connexion.commit()
+                if count == 0:
+                    try:
+                        print(Fore.GREEN + "Trying to insert expression level :", i)
+                        add_expressionlevel = """INSERT INTO expressionlevel(length, eff_count, est_count, expression_level) VALUES('%s', '%s', '%s', '%s');""" % (lenght, eff_lenght, est_counts, exp_level)
+                        self._cursor.execute(add_expressionlevel)
+                    except mysql.connector.Error as err:
+                        print(Fore.RED + str(err))
+                        self._connexion.rollback()
+                    else:
+                        self._connexion.commit()
+                else:
+                    print("blabla")
 
     def import_genes_has_expression(self, family: str):
         """
@@ -474,6 +533,7 @@ class ImportData:
 
 def main():
     importdata = ImportData(path_directory, database_configuration, exp_filename)
-    importdata.import_expressionslevel(family="F00000")
+    importdata.import_genes_has_expression('F00000')
+    importdata.close_database()
 
 main()
