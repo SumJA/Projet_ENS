@@ -1,6 +1,5 @@
 import mysql.connector, os
 from script_import import get_data
-import requests, sys
 
 path_directory = "/media/elisa/Windows/Users/UTILISATEUR/Documents/M1/S2/Projets/ProjetM1BioInfo.tar/ProjetM1BioInfo/ProjetM1BioInfo/Version1"
 
@@ -20,25 +19,9 @@ class ImportData():
     def import_genes(self):  # marche pas encore car faut récupérer nom des gènes
         for family in list(set(self.getdata._extract_families_names(self.getdata._alignments_path))):
             for key in self.getdata.extract_gene_and_alignment_for_family(family).keys():
-                gene_name = self.ensemblID_to_geneName(key)
                 add_gene_name_and_EnsemblID = ("INSERT INTO genes" "(Ensembl_ID)" "VALUES(%s);")
                 data_gene_name_and_EnsemblID = (key,)
                 self.cursor.execute(add_gene_name_and_EnsemblID, data_gene_name_and_EnsemblID)
-
-    def ensemblID_to_geneName(self, ensemblID):
-
-        server = "http://rest.ensembl.org"
-        ext = "/archive/id/" + ensemblID + "?"
-
-        r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
-        if not r.ok:
-            r.raise_for_status()
-            sys.exit()
-
-        decoded = r.json()
-        print(repr(decoded))
-        return 0
 
     def import_alignments(
             self):  # marche pas car dans base de données c'est "VARCHAR 45" sauf que les alignments sont plus longs et que je n'arrive pas à y changer dans la bdd
@@ -109,12 +92,12 @@ def main():
     importdata = ImportData(path_directory)
     getdata = get_data.GetData(path_directory)
     #    importdata.import_families()
-    importdata.import_genes()
+    #    importdata.import_genes()
     #    importdata.import_alignments()
     #    importdata.import_tree()
     #    importdata.import_expressions()
     #    importdata.import_species()
-    # importdata.import_organs_expressionMethod_condition()
+    importdata.import_organs_expressionMethod_condition()
     importdata.close_database()
 
 main()

@@ -1,0 +1,34 @@
+#navigation {
+  width: 200px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  height: 100%;
+  background: #aa6c91 ;
+  padding-top: 150px;
+}
+
+
+#navigation li {
+  color: #9aa0a6 ;
+  margin-bottom: 1px ;
+}
+
+#navigation li a {
+  display: block ;
+  background: #aa6c91 ;
+  color: #fff ;
+  font: 1em "Trebuchet MS",Arial,sans-serif ;
+  line-height: 1em ;
+  text-align: center ;
+  text-decoration: none ;
+  padding: 20px;
+}
+
+#navigation li a:hover, #navigation li a:focus, #navigation li a:active {
+  background: #9aa0a6 ;
+  text-decoration: underline ;
+}
+
+
