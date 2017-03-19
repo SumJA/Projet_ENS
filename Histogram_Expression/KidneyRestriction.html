@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript">
+	var data = "ENSMUSP00000088031_F00000	1728	1609.29	6952	20.1779\nENSMUSP00000069744_F00000	1386	1409.31	6868	22.7627\nENSMUSP00000022304_F00000	1425	1344.04	917	3.18682\nENSMUSP00000023504_F00000	1293	1258.39	638	2.36812\nENSMUSP00000002320_F00000	1320	1344.25	7836	27.228\nENSMUSP00000023119_F00000	1266	1228.05	40142	152.68\nENSMUSP00000005820_F00000	1074	1058.64	160	0.705948\nENSMUSP00000052557_F00000	1515	1393.08	2	0.00670583\nENSMUSP00000047597_F00000	1410	1329.96	4	0.0140483\nENSMUSP00000069505_F00000	1845	1869.27	33616	83.9992\nENSMUSP00000034766_F00000	1569	1541.44	796	2.41206\nENSMUSP00000048838_F00000	1374	1387.47	3641	12.2573\nENSMUSP00000099428_F00000	1230	1209.85	17784	68.6594\nENSMUSP00000073188_F00000	1338	1376.55	29110	98.7759\nENSMUSP00000100933_F00000	1464	1420.56	27476	90.3429\nENSMUSP00000067694_F00000	1344	1302.63	760	2.72517\nENSMUSP00000105049_F00000	1404	1353.62	8235	28.4162\nENSMUSP00000000450_F00000	1515	1428.36	351	1.14781\nENSMUSP00000106988_F00000	1335	1346.21	18725	64.9694\nENSMUSP00000029795_F00000	1548	1498.07	9789	30.5216";
+
+	var datas = [];
+	for(var i = 0; i < data.split("\n").length; i++) {
+		ligne = data.split("\n")[i];
+		datas.push({y: Math.round(ligne.split("\t")[4]), label: ligne.split("\t")[0]});
+	}
+	window.onload = function () {
+		var chart = new CanvasJS.Chart("chartContainer", {
+
+			title:{
+				text:"Gene's Expression in Kidney restriction"
+
+			},
+                        animationEnabled: true,
+			axisX:{
+				interval: 1,
+				gridThickness: 0,
+				labelFontSize: 10,
+				labelFontStyle: "normal",
+				labelFontWeight: "normal",
+				labelFontFamily: "Lucida Sans Unicode"
+
+			},
+			axisY2:{
+				interlacedColor: "rgba(1,77,101,.1)",
+				gridColor: "rgba(1,77,101,.1)"
+
+			},
+
+			data: [
+			{
+				type: "bar",
+                		name: "companies",
+				axisYType: "secondary",
+				color: "#014D65",
+				dataPoints: datas
+			}
+
+			]});
+
+chart.render();
+}
+
+    </script>
+    <script type="text/javascript" src="/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; width: 100%;">
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript">
+	var data = "ENSMUSP00000088031_F00000	1728	1552.32	1450	8.76202\nENSMUSP00000069744_F00000	1386	1210.32	6121	47.4394\nENSMUSP00000022304_F00000	1425	1249.32	65	0.488042\nENSMUSP00000023504_F00000	1293	1117.32	1	0.00839537\nENSMUSP00000002320_F00000	1320	1144.32	4291	35.1745\nENSMUSP00000023119_F00000	1266	1090.32	366	3.1488\nENSMUSP00000005820_F00000	1074	898.319	191	1.99443\nENSMUSP00000052557_F00000	1515	1339.32	467	3.27077\nENSMUSP00000047597_F00000	1410	1234.32	28	0.212788\nENSMUSP00000069505_F00000	1845	1669.32	2201	12.368\nENSMUSP00000034766_F00000	1569	1393.32	397	2.67274\nENSMUSP00000048838_F00000	1374	1198.32	14875	116.44\nENSMUSP00000099428_F00000	1230	1054.32	10676	94.9847\nENSMUSP00000073188_F00000	1338	1162.32	7504	60.5598\nENSMUSP00000100933_F00000	1464	1288.32	21	0.152902\nENSMUSP00000067694_F00000	1344	1168.32	2197	17.6395\nENSMUSP00000105049_F00000	1404	1228.32	144	1.09969\nENSMUSP00000000450_F00000	1515	1339.32	90	0.630341\nENSMUSP00000106988_F00000	1335	1159.32	197	1.59397\nENSMUSP00000029795_F00000	1548	1372.32	561	3.83464";
+
+	var datas = [];
+	for(var i = 0; i < data.split("\n").length; i++) {
+		ligne = data.split("\n")[i];
+		datas.push({y: Math.round(ligne.split("\t")[4]), label: ligne.split("\t")[0]});
+	}
+	window.onload = function () {
+		var chart = new CanvasJS.Chart("chartContainer", {
+
+			title:{
+				text:"Gene's Expression in tooth3"
+
+			},
+                        animationEnabled: true,
+			axisX:{
+				interval: 1,
+				gridThickness: 0,
+				labelFontSize: 10,
+				labelFontStyle: "normal",
+				labelFontWeight: "normal",
+				labelFontFamily: "Lucida Sans Unicode"
+
+			},
+			axisY2:{
+				interlacedColor: "rgba(1,77,101,.1)",
+				gridColor: "rgba(1,77,101,.1)"
+
+			},
+
+			data: [
+			{
+				type: "bar",
+                		name: "companies",
+				axisYType: "secondary",
+				color: "#014D65",
+				dataPoints: datas
+			}
+
+			]});
+
+return chart.render();
+}
+
+    </script>
+    <script type="text/javascript" src="/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; width: 100%;">
+</div>
+</body>
+</html>

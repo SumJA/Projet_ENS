@@ -1,0 +1,37 @@
+Introduction :
+
+We have data on gene families. For each gene, we have data about genes alignments, genes tree ans genes expression.
+In this web application, we group all this data. This website makes it possible to visualize all the data, for a gene
+or for a family.
+
+For this project, you need to have a python version superior to 3.1.
+
+I Data Base
+ 1. How to import data
+Check the connection to mysql server : mode "strcit" disabled.
+mysql -e "SELECT @@sql_mode;"
+
+
+
+II Django
+ 1. Installation
+
+sudo apt-get install python3-pip
+sudo aptitude install python3-django
+sudo pip install django
+
+
+ 2. Utilization
+
+To use Django, you need to create a virtual environment.
+EXPLIQUER COMMENT CREER L'ENVIRONNEMENT
+To activate the environment, write this command into a terminal : source environment_name/bin/activate
+python manage.py runserveur 127.0.0.1:8000
+
+III Data visualization
+ 1. Expression
+
+ 2. Alignment
+ 3. Tree
+To visualize genes tree, you need to install "ETE3" in your computer. For this : pip (or pip3) --upgrade
+and after : pip (or pip3) easyinstall ete3.
