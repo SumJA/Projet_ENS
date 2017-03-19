@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript">
+	var data = "ENSMUSP00000088031_F00000	1728	1551.6	671	58.9753\nENSMUSP00000069744_F00000	1386	1209.6	657	74.0715\nENSMUSP00000022304_F00000	1425	1248.6	45	4.91492\nENSMUSP00000023504_F00000	1293	1116.6	1	0.122132\nENSMUSP00000002320_F00000	1320	1143.6	665	79.3003\nENSMUSP00000023119_F00000	1266	1089.6	366	45.808\nENSMUSP00000005820_F00000	1074	897.6	128	19.4471\nENSMUSP00000052557_F00000	1515	1338.6	425	43.2978\nENSMUSP00000047597_F00000	1410	1233.6	28	3.09536\nENSMUSP00000069505_F00000	1845	1668.6	362	29.5858\nENSMUSP00000034766_F00000	1569	1392.6	395	38.681\nENSMUSP00000048838_F00000	1374	1197.6	722	82.2153\nENSMUSP00000099428_F00000	1230	1053.6	558	72.2247\nENSMUSP00000073188_F00000	1338	1161.6	727	85.3503\nENSMUSP00000100933_F00000	1464	1287.6	21	2.22416\nENSMUSP00000067694_F00000	1344	1167.6	560	65.4065\nENSMUSP00000105049_F00000	1404	1227.6	144	15.9968\nENSMUSP00000000450_F00000	1515	1338.6	90	9.16894\nENSMUSP00000106988_F00000	1335	1158.6	197	23.1878\nENSMUSP00000029795_F00000	1548	1371.6	552	54.8831";
+
+	var datas = [];
+	for(var i = 0; i < data.split("\n").length; i++) {
+		ligne = data.split("\n")[i];
+		datas.push({y: Math.round(ligne.split("\t")[4]), label: ligne.split("\t")[0]});
+	}
+	window.onload = function () {
+		var chart = new CanvasJS.Chart("chartContainer", {
+
+			title:{
+				text:"Gene's Expression in tooth2"
+
+			},
+                        animationEnabled: true,
+			axisX:{
+				interval: 1,
+				gridThickness: 0,
+				labelFontSize: 10,
+				labelFontStyle: "normal",
+				labelFontWeight: "normal",
+				labelFontFamily: "Lucida Sans Unicode"
+
+			},
+			axisY2:{
+				interlacedColor: "rgba(1,77,101,.1)",
+				gridColor: "rgba(1,77,101,.1)"
+
+			},
+
+			data: [
+			{
+				type: "bar",
+                		name: "companies",
+				axisYType: "secondary",
+				color: "#014D65",
+				dataPoints: datas
+			}
+
+			]});
+
+chart.render();
+}
+
+    </script>
+    <script type="text/javascript" src="/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; width: 100%;">
+</div>
+</body>
+</html>
