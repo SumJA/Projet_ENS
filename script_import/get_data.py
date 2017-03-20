@@ -2,6 +2,9 @@ import os
 from colorama import Fore  # color console module
 from script_import import argparser  # command-line parsing module
 import csv  # csv / tsv reader module
+import sys
+import requests
+import subprocess
 
 # Get argument and parse them :
 path_directory = argparser.args.directory  # path to the directory with data to import
@@ -9,7 +12,6 @@ file_name = argparser.args.expression  # name of Expression level file - the dat
 species_file = argparser.args.species  # name of species_metadata_file metadata file
 
 
-# TODO : vérifier la bon formats des données.
 class GetData:
     """
     A data extractor:
@@ -18,6 +20,8 @@ class GetData:
             - phylogenetic trees
             - level of expression
             - information on the species_metadata_file analyzed
+
+    WARNING : Make sure your data follow the standard.
 
     :Attributes: path_directory : (str) The data directory path.
                 data : (dict) A dictionary with all the extracted information. The keys are the genes families.
@@ -65,6 +69,36 @@ class GetData:
         except AssertionError as Ae:
             print(Ae)
             print(Fore.RED + "ERROR : Unable to open file : the file does not exist OR no read permissions")
+
+    @staticmethod
+    def idensembl_to_nomgene(EnsemblID):
+        """
+        Get gene name from its EnsemblID
+        :param EnsemblID:
+        :return: ensembl_name
+        """
+        # FIXME : ne marche pas !!
+        server = "http://rest.ensembl.org"
+        ext = "/xrefs/id/" + EnsemblID + "?"
+
+        r = requests.get(server + ext, headers={"Content-Type": "application/json"})
+
+        if not r.ok:
+            r.raise_for_status()
+            sys.exit()
+
+        json_file = r.json()
+        ensembl_name = json_file[1]["display_id"]
+        return ensembl_name
+
+    @staticmethod
+    def create_gene_name_file():
+        """
+        execute R script : This script executes the R script to extract gene name.
+        :return: None
+        """
+        # FIXME : parsing impossible : demander un nouveau script.
+        subprocess.check_call(['Rscript', 'GetEqEnsemblIdGeneName.R'], shell=False)
 
     def _get_all_directories_path(self):
         """
@@ -175,6 +209,19 @@ class GetData:
                     gene_name[gene] = seq
             f.close()
             return gene_name
+        except OSError:
+            print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
+
+    def get_gene_name(self, file: str):
+        gene = {}
+        table = os.path.join(os.getcwd(), file)
+        self.check_file_info(table)  # Check if the Seq2SpTab directory exists
+        try:
+            with open(table, 'r') as tsv:
+                for line in csv.reader(tsv, delimiter="\t"):
+                    # print(line[0])
+                    break
+            return gene
         except OSError:
             print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
 

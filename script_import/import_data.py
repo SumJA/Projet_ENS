@@ -277,6 +277,57 @@ class ImportData:
             else:
                 self._connexion.commit()
 
+    def tmp_aligned_sequence(self, family: str):
+        l = []
+        sequence_data = self._get_data.extract_gene_and_alignment_for_family(family)
+        try:
+            select_gene = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s';""" % family
+            self._cursor.execute(select_gene)
+            family_id = self._cursor.fetchone()[0]
+        except mysql.connector.Error as err:
+            print(Fore.RED + str(err))
+        else:
+            try:
+                select_gene = """SELECT idgenes, Ensembl_ID FROM genes WHERE gene_family_idgene_family = '%s';""" % family_id
+                self._cursor.execute(select_gene)
+                gene_info = self._cursor.fetchall()
+                for i in gene_info:
+                    l.append(i[1])  # construct the list of gene ensembl ID found.
+            except mysql.connector.Error as err:
+                print(Fore.RED + str(err))
+            else:
+                if gene_info:
+                    try:
+                        select_gene = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s';""" % family_id
+                        self._cursor.execute(select_gene)
+                        alignment_id = self._cursor.fetchone()[0]
+                    except mysql.connector.Error as err:
+                        print(Fore.RED + str(err))
+                    else:
+                        if alignment_id:
+                            for gene in l:
+                                for i in gene_info:
+                                    try:
+                                        sequence = sequence_data[gene]
+                                        # check if the data already exists :
+                                        select_sequence = """SELECT COUNT(*) FROM aligned_sequence WHERE sequence = '%s' and Alignment_idAlignment = '%s' and genes_idgenes = '%s';""" % (sequence, alignment_id, i[0])
+                                        self._cursor.execute(select_sequence)
+                                        print(self._cursor)
+                                        count = self._cursor.fetchone()[0]
+                                    except mysql.connector.Error as err:
+                                        print(Fore.RED + str(err))
+                                    else:
+                                        if count == 0:
+                                            try:
+                                                print(Fore.GREEN + "Trying to insert sequences :", sequence)
+                                                add_sequence = """INSERT INTO aligned_sequence(sequence, Alignment_idAlignment, genes_idgenes) VALUE('%s', '%s', '%s');""" % (sequence, alignment_id, i[0])
+                                                self._cursor.execute(add_sequence)
+                                            except mysql.connector.Error as err:
+                                                print(Fore.RED + str(err))
+                                                self._connexion.rollback()
+                                            else:
+                                                self._connexion.commit()
+
     def import_aligned_sequence(self, family: str):
         """
         Imports aligned sequence from the alignment file in the aligned_sequence table.
@@ -285,9 +336,10 @@ class ImportData:
         """
         genes = self._get_data.extract_gene_and_alignment_for_family(family)
         for gene in genes.keys():
+            print(gene)
             sequence = genes[gene][0]
             try:
-                select_gene = """SELECT COUNT(*) FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                select_gene = """SELECT COUNT(*) FROM genes WHERE Ensembl_ID = '%s';""" % gene
                 self._cursor.execute(select_gene)
                 count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
@@ -295,7 +347,7 @@ class ImportData:
             else:
                 if count != 0:
                     try:
-                        select_idgene = """SELECT idgenes, gene_family_idgene_family1 FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                        select_idgene = """SELECT idgenes, gene_family_idgene_family FROM genes WHERE Ensembl_ID = '%s';""" % gene
                         self._cursor.execute(select_idgene)
                         idgene = self._cursor.fetchall()[0][0]
                         idfamily = self._cursor.fetchall()[0][1]
@@ -303,7 +355,7 @@ class ImportData:
                         print(Fore.RED + str(err))
                     else:
                         try:
-                            select_alignment = """SELECT COUNT(*) FROM Alignment WHERE gene_family_idgene_family = '%s'""" % idfamily
+                            select_alignment = """SELECT COUNT(*) FROM Alignment WHERE gene_family_idgene_family = '%s';""" % idfamily
                             self._cursor.execute(select_alignment)
                             count = self._cursor.fetchone()[0]
                         except mysql.connector.Error as err:
@@ -311,7 +363,7 @@ class ImportData:
                         else:
                             if count != 0:
                                 try:
-                                    select_idalignment = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s'""" % idfamily
+                                    select_idalignment = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s';""" % idfamily
                                     self._cursor.execute(select_idalignment)
                                     id_alignment = self._cursor.fetchone()[0]
                                 except mysql.connector.Error as err:
@@ -328,7 +380,7 @@ class ImportData:
                                         if count == 0:
                                             try:
                                                 print(Fore.GREEN + "Trying to insert sequences :", sequence)
-                                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment) VALUE('%s', '%s')""" % (sequence, id_alignment)
+                                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment) VALUE('%s', '%s');""" % (sequence, id_alignment)
                                                 self._cursor.execute(add_sequence)
                                             except mysql.connector.Error as err:
                                                 print(Fore.RED + str(err))
@@ -336,47 +388,59 @@ class ImportData:
                                             else:
                                                 self._connexion.commit()
                             else:
-                                print(Fore.BLUE + "No alignment found in the database for the sequence : ", sequence)
+                                # print(Fore.BLUE + "No alignment found in the database for the sequence : ", sequence)
+                                pass
                 else:
-                    print(Fore.BLUE + "No gene found in the database for the sequence : ", sequence)
+                    # print(Fore.BLUE + "No gene found in the database for the sequence : ", sequence)
+                    pass
 
     def import_alignments(self, family: str):
         """
         Imports the tree for the family, and the foreign key from gene_family table.
 
         :param family: (str) a family name
-        :return: id
+        :return: None
         """
         tree = self._get_data.extract_tree(family)
         try:
-            # get family id from the gene_family table :
-            select_family = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s'""" % family
-            self._cursor.execute(select_family)
-            id_family = self._cursor.fetchone()[0]
+            select_nb_fam = """SELECT COUNT(*) FROM gene_family WHERE gene_family_name = '%s'""" % family
+            self._cursor.execute(select_nb_fam)
+            count = self._cursor.fetchone()[0]
         except mysql.connector.Error as err:
             print(Fore.RED + str(err))
-            self._connexion.rollback()
         else:
-            try:
-                select_tree = """SELECT COUNT(*) FROM Alignment WHERE tree = '%s' and gene_family_idgene_family = '%s';""" % (tree, id_family)
-                self._cursor.execute(select_tree)
-                count = self._cursor.fetchone()[0]
-            except mysql.connector.Error as err:
-                print(Fore.RED + str(err))
-                self._connexion.rollback()
-            else:
-                if count == 0:
+            if count != 0:
+                try:
+                    # get family id from the gene_family table :
+                    select_family = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s'""" % family
+                    self._cursor.execute(select_family)
+                    id_family = self._cursor.fetchone()[0]
+                except mysql.connector.Error as err:
+                    print(Fore.RED + str(err))
+                else:
                     try:
-                        # insert data into alignment table :
-                        add_tree = """INSERT INTO Alignment(gene_family_idgene_family, tree) VALUES('%s', '%s')""" % (id_family, tree)
-                        print(Fore.GREEN + "Trying to insert tree for family :", family)
-                        self._cursor.execute(add_tree)
+                        select_tree = """SELECT COUNT(*) FROM Alignment WHERE tree = '%s' and gene_family_idgene_family = '%s';""" % (
+                        tree, id_family)
+                        self._cursor.execute(select_tree)
+                        count = self._cursor.fetchone()[0]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
-                        self._connexion.rollback()
                     else:
-                        self._connexion.commit()
-        return tree
+                        if count == 0:
+                            try:
+                                # insert data into alignment table :
+                                add_tree = """INSERT INTO Alignment(gene_family_idgene_family, tree) VALUES('%s', '%s')""" % (id_family, tree)
+                                print(Fore.GREEN + "Trying to insert tree for family :", family)
+                                self._cursor.execute(add_tree)
+                            except mysql.connector.Error as err:
+                                print(Fore.RED + str(err))
+                                self._connexion.rollback()
+                            else:
+                                self._connexion.commit()
+                        else:
+                            print(Fore.RED + "Duplicate entry '%s, %s' - The insert has been ignored" % (id_family, tree))
+            else:
+                print(Fore.BLUE + "No %s found in the database : " % family)
 
     def import_genes(self, family: str):
         """
@@ -394,7 +458,6 @@ class ImportData:
                 id_family = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
-                self._connexion.rollback()
             else:
                 try:
                     # select id_species of the gene :
@@ -403,22 +466,21 @@ class ImportData:
                     id_species = self._cursor.fetchone()[0]
                 except mysql.connector.Error as err:
                     print(Fore.RED + str(err))
-                    self._connexion.rollback()
                 else:
                     try:
-                        select_gene = """SELECT COUNT(*) FROM genes WHERE genes_name is NULL and Ensembl_ID = '%s' and species_idspecies = '%s' and gene_family_idgene_family1 = '%s';""" % (gene, id_species, id_family)
+                        gene_name = self._get_data.idensembl_to_nomgene(gene)
+                        select_gene = """SELECT COUNT(*) FROM genes WHERE genes_name = '%s' AND Ensembl_ID = '%s' and species_idspecies = '%s' and gene_family_idgene_family = '%s';""" % (gene_name, gene, id_species, id_family)
                         self._cursor.execute(select_gene)
                         count = self._cursor.fetchone()[0]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
-                        self._connexion.rollback()
                     else:
                         if count == 0:
                             try:
+                                gene_name = self._get_data.idensembl_to_nomgene(gene)
                                 print(Fore.GREEN + "Trying to insert gene :", gene)
-                                # FIXME : récupérer nom gene sur EMBL via script R !
-                                add_sequence = """INSERT INTO genes(genes_name, Ensembl_ID, species_idspecies, gene_family_idgene_family1) VALUES(NULL , '%s', '%s', '%s')""" % (
-                                    gene, id_family, id_species)
+                                add_sequence = """INSERT INTO genes(genes_name, Ensembl_ID, species_idspecies, gene_family_idgene_family) VALUES('%s' , '%s', '%s', '%s')""" % (
+                                    gene_name, gene, id_species, id_family)
                                 self._cursor.execute(add_sequence)
                             except mysql.connector.Error as err:
                                 print(Fore.RED + str(err))
@@ -533,7 +595,14 @@ class ImportData:
 
 def main():
     importdata = ImportData(path_directory, database_configuration, exp_filename)
-    importdata.import_genes_has_expression('F00000')
+    # importdata.import_a_family('F00000')
+    # importdata.import_species(species_metadata_file)
+    # importdata.import_organs_expression_method_condition()
+    # importdata.import_expressionslevel('F00000')
+    # importdata.import_alignments('F00000')
+    # importdata.import_genes('F00000')
+    importdata.tmp_aligned_sequence('F00000')
+    # importdata.import_genes_has_expression('F00000')
     importdata.close_database()
 
 main()
