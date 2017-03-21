@@ -32,8 +32,9 @@
                 3200, 6000
             );
 
-            var fasta = ">seq1\nACTG\n>seq2\nACGG\n";
-            var seqs = msa.io.fasta.parse(fasta);
+            var fasta = {% autoescape off %}'{{ seq | linebreaksbr }}'{% endautoescape %};
+            var f = fasta.replace(/<br\s*[\/]?>/gi, "\n");
+            var seqs = msa.io.fasta.parse(f);
             var m = msa({
                 el: document.getElementById("msa"),
                 seqs: seqs
@@ -54,7 +55,6 @@
             </div>
         </div>
     </div>
-    <p>{{ sequence.sequence }}</p>
     <div id="svgCanvas"></div>
 
     <div id="msa">Loading Alignment. Please wait...</div>

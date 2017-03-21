@@ -1,3 +1,4 @@
+import textwrap
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .forms import SearchForm
@@ -33,10 +34,12 @@ def results(request, item, typedata):
     """
     if typedata == 'Gene family name':
         try:
+            seq = ""
             family = GeneFamily.objects.get(gene_family_name=item)
             alignment = get_object_or_404(Alignment, gene_family_idgene_family=family.idgene_family)
-            genes = Genes.objects.filter(gene_family_idgene_family=family.idgene_family)
-            sequence = AlignedSequence.objects.filter(genes_idgenes=genes)
+            sequences = AlignedSequence.objects.filter(genes_idgenes__gene_family_idgene_family=family.idgene_family).select_related()
+            for sequence in sequences:
+                seq += ">"+sequence.genes_idgenes.ensembl_id+"\n"+sequence.sequence+"\n"
         except GeneFamily.DoesNotExist:
             return render(request, 'research/Unknown.html', locals())
     elif typedata == 'Gene Ensembl ID':
