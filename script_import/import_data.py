@@ -1,4 +1,5 @@
 import mysql.connector
+import os
 from mysql.connector import errorcode
 from script_import import get_data
 from script_import import config_db
@@ -186,9 +187,9 @@ class ImportData:
             subcondition_type = info[3][2]
             # FIXME : dvp_stage à définir !
             # check for double NULL value :
-            select_conditions = """SELECT COUNT(*) FROM conditions WHERE dvp_stage IS NULL and subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s';""" % (
+            select_conditions = """SELECT COUNT(*) FROM conditions WHERE subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s';""" % (
             subcondition, cond_type, subcondition_type)
-            add_conditions = """INSERT INTO conditions(dvp_stage, subcondition, condition_type, subcondition_type) VALUES (NULL , '%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
+            add_conditions = """INSERT INTO conditions(subcondition, condition_type, subcondition_type) VALUES ('%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
             try:
                 self._cursor.execute(select_conditions)
                 count = self._cursor.fetchone()[0]
@@ -227,8 +228,8 @@ class ImportData:
             add_organs = """INSERT INTO organs(organ_name) VALUES ('%s')""" % organ
             # FIXME : dvp_stage à définir !
             # verifier doublons avec null
-            select_conditions = """SELECT COUNT(*) FROM conditions WHERE dvp_stage IS NULL and subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s'""" % (subcondition, cond_type, subcondition_type)
-            add_conditions = """INSERT INTO conditions(dvp_stage, subcondition, condition_type, subcondition_type) VALUES (NULL , '%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
+            select_conditions = """SELECT COUNT(*) FROM conditions WHERE subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s'""" % (subcondition, cond_type, subcondition_type)
+            add_conditions = """INSERT INTO conditions(subcondition, condition_type, subcondition_type) VALUES ('%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
             select_mthd = """SELECT COUNT(*) FROM expression_method WHERE expression_method_name = '%s' AND quantification_tool = '%s';""" % (
             method_expr, tool)
             add_method = """INSERT INTO expression_method(expression_method_name, quantification_tool) VALUES ('%s','%s')""" % (method_expr, tool)
@@ -336,7 +337,6 @@ class ImportData:
         """
         genes = self._get_data.extract_gene_and_alignment_for_family(family)
         for gene in genes.keys():
-            print(gene)
             sequence = genes[gene][0]
             try:
                 select_gene = """SELECT COUNT(*) FROM genes WHERE Ensembl_ID = '%s';""" % gene
@@ -349,8 +349,9 @@ class ImportData:
                     try:
                         select_idgene = """SELECT idgenes, gene_family_idgene_family FROM genes WHERE Ensembl_ID = '%s';""" % gene
                         self._cursor.execute(select_idgene)
-                        idgene = self._cursor.fetchall()[0][0]
-                        idfamily = self._cursor.fetchall()[0][1]
+                        ids = self._cursor.fetchall()
+                        idgene = ids[0][0]
+                        idfamily = ids[0][1]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
                     else:
@@ -380,7 +381,7 @@ class ImportData:
                                         if count == 0:
                                             try:
                                                 print(Fore.GREEN + "Trying to insert sequences :", sequence)
-                                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment) VALUE('%s', '%s');""" % (sequence, id_alignment)
+                                                add_sequence = """INSERT INTO aligned_sequence(sequence, alignment_idalignment, genes_idgenes) VALUE('%s', '%s','%s');""" % (sequence, id_alignment,idgene)
                                                 self._cursor.execute(add_sequence)
                                             except mysql.connector.Error as err:
                                                 print(Fore.RED + str(err))
@@ -449,44 +450,76 @@ class ImportData:
         :return: None
         """
         genes = self._get_data.extract_species_and_sequence_for_gene(family)
+        if self._get_data.check_file_info(os.path.join(os.getcwd(), "table_equivalence.tsv")) == 0 and \
+                self._get_data.check_file_info(os.path.join(os.getcwd(), "table_equivalence_mus.tsv")) == 0:
+            # extract gene names :
+            gene_names_dict = self._get_data.extract_gene_name(True)
+        else:
+            # extract gene names :
+            gene_names_dict = self._get_data.extract_gene_name(False)
         for gene in genes.keys():
             species = genes[gene][1]
             try:
-                # select id_gene_family of the family :
-                select_family = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s'""" % family
-                self._cursor.execute(select_family)
-                id_family = self._cursor.fetchone()[0]
+                # check if the family is in the database :
+                select_cf = """SELECT COUNT(idgene_family) FROM gene_family WHERE gene_family_name = '%s'""" % family
+                self._cursor.execute(select_cf)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
             else:
-                try:
-                    # select id_species of the gene :
-                    select_species = """SELECT idspecies FROM species WHERE species_name = '%s'""" % species
-                    self._cursor.execute(select_species)
-                    id_species = self._cursor.fetchone()[0]
-                except mysql.connector.Error as err:
-                    print(Fore.RED + str(err))
-                else:
+                if count != 0:
                     try:
-                        gene_name = self._get_data.idensembl_to_nomgene(gene)
-                        select_gene = """SELECT COUNT(*) FROM genes WHERE genes_name = '%s' AND Ensembl_ID = '%s' and species_idspecies = '%s' and gene_family_idgene_family = '%s';""" % (gene_name, gene, id_species, id_family)
-                        self._cursor.execute(select_gene)
-                        count = self._cursor.fetchone()[0]
+                        # select id_family of the gene :
+                        select_family = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s'""" % family
+                        self._cursor.execute(select_family)
+                        id_family = self._cursor.fetchone()[0]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
                     else:
-                        if count == 0:
-                            try:
-                                gene_name = self._get_data.idensembl_to_nomgene(gene)
-                                print(Fore.GREEN + "Trying to insert gene :", gene)
-                                add_sequence = """INSERT INTO genes(genes_name, Ensembl_ID, species_idspecies, gene_family_idgene_family) VALUES('%s' , '%s', '%s', '%s')""" % (
-                                    gene_name, gene, id_species, id_family)
-                                self._cursor.execute(add_sequence)
-                            except mysql.connector.Error as err:
-                                print(Fore.RED + str(err))
-                                self._connexion.rollback()
+                        try:
+                            # check if the id_species of the gene exists :
+                            select_cs = """SELECT idspecies FROM species WHERE species_name = '%s'""" % species
+                            self._cursor.execute(select_cs)
+                            count = self._cursor.fetchone()[0]
+                        except mysql.connector.Error as err:
+                            print(Fore.RED + str(err))
+                        else:
+                            if count != 0:
+                                try:
+                                    # select id_species of the gene :
+                                    select_species = """SELECT idspecies FROM species WHERE species_name = '%s'""" % species
+                                    self._cursor.execute(select_species)
+                                    id_species = self._cursor.fetchone()[0]
+                                except mysql.connector.Error as err:
+                                    print(Fore.RED + str(err))
+                                else:
+                                    try:
+                                        # check for duplicate row :
+                                        gene_name = gene_names_dict[gene]
+                                        select_gene = """SELECT COUNT(*) FROM genes WHERE genes_name = '%s' AND Ensembl_ID = '%s' and species_idspecies = '%s' and gene_family_idgene_family = '%s';""" % (gene_name, gene, id_species, id_family)
+                                        self._cursor.execute(select_gene)
+                                        count = self._cursor.fetchone()[0]
+                                    except mysql.connector.Error as err:
+                                        print(Fore.RED + str(err))
+                                    else:
+                                        if count == 0:
+                                            try:
+                                                gene_name = gene_names_dict[gene]
+                                                print(Fore.GREEN + "Trying to insert gene :", gene)
+                                                add_sequence = """INSERT INTO genes(genes_name, Ensembl_ID, species_idspecies, gene_family_idgene_family) VALUES('%s' , '%s', '%s', '%s')""" % (
+                                                    gene_name, gene, id_species, id_family)
+                                                self._cursor.execute(add_sequence)
+                                            except mysql.connector.Error as err:
+                                                print(Fore.RED + str(err))
+                                                self._connexion.rollback()
+                                            else:
+                                                self._connexion.commit()
                             else:
-                                self._connexion.commit()
+                                print(Fore.RED + "No species %s found in the database. Use the method import_species "
+                                                 "to import %s, from your species metadata and retry." % (species, species))
+                else:
+                    print(Fore.RED + "No family %s found in the database. Use the method import_a_family to import %s, "
+                                     "and retry." % (family, family))
 
     def import_expressionslevel(self, family: str):
         """
@@ -501,25 +534,14 @@ class ImportData:
             est_counts = int(i[2])
             exp_level = float(i[3])
             try:
-                select_exprlvl = """SELECT COUNT(*) FROM expressionlevel WHERE length = %s AND eff_count = %s AND est_count = %s AND expression_level = %s;""" % (lenght, eff_lenght, est_counts, exp_level)
-                print(select_exprlvl)
-                self._cursor.execute(select_exprlvl)
-                count = self._cursor.fetchone()[0]
+                print(Fore.GREEN + "Trying to insert expression level :", i)
+                add_expressionlevel = """INSERT INTO expressionlevel(length, eff_count, est_count, expression_level) VALUES('%s', '%s', '%s', '%s');""" % (lenght, eff_lenght, est_counts, exp_level)
+                self._cursor.execute(add_expressionlevel)
             except mysql.connector.Error as err:
-                print(Fore.RED + str(err))
+                    print(Fore.RED + str(err))
+                    self._connexion.rollback()
             else:
-                if count == 0:
-                    try:
-                        print(Fore.GREEN + "Trying to insert expression level :", i)
-                        add_expressionlevel = """INSERT INTO expressionlevel(length, eff_count, est_count, expression_level) VALUES('%s', '%s', '%s', '%s');""" % (lenght, eff_lenght, est_counts, exp_level)
-                        self._cursor.execute(add_expressionlevel)
-                    except mysql.connector.Error as err:
-                        print(Fore.RED + str(err))
-                        self._connexion.rollback()
-                    else:
-                        self._connexion.commit()
-                else:
-                    print("blabla")
+                self._connexion.commit()
 
     def import_genes_has_expression(self, family: str):
         """
@@ -534,52 +556,100 @@ class ImportData:
             method = data[gene][1][1]
             tool = data[gene][1][2]
             condition = data[gene][1][3]
-            select_gene = """SELECT idgenes FROM genes WHERE Ensembl_ID = '%s'""" % gene
-            select_exp_lvl = """SELECT idexpressionlevel FROM expressionlevel WHERE length = '%s' AND eff_count = '%s' AND est_count = '%s' AND expression_level = '%s';""" % (
-            exp_lvl[0], exp_lvl[1], exp_lvl[2], exp_lvl[3])
-            select_organ = """SELECT idorgans FROM organs WHERE organ_name = '%s'""" % organ
-            select_condition = """SELECT idconditions FROM conditions WHERE dvp_stage is NULL AND subcondition = '%s' AND condition_type = '%s' AND subcondition_type = '%s'""" % (
-            condition[0], condition[1], condition[2])
-            select_expr_mthd = """SELECT idexpression_method FROM expression_method WHERE quantification_tool = '%s' AND expression_method_name = '%s'""" % (
-            tool, method)
             try:
-                self._cursor.execute(select_gene)
-                id_gene = self._cursor.fetchone()[0]
+                select_cg = """SELECT COUNT(*) FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                self._cursor.execute(select_cg)
+                count = self._cursor.fetchone()[0]
             except mysql.connector.Error as err:
                 print(Fore.RED + str(err))
             else:
-                try:
-                    self._cursor.execute(select_exp_lvl)
-                    id_exp_lvl = self._cursor.fetchone()[0]
-                except mysql.connector.Error as err:
-                    print(Fore.RED + str(err))
-                else:
+                if count != 0:
                     try:
-                        self._cursor.execute(select_condition)
-                        id_condition = self._cursor.fetchone()[0]
+                        select_gene = """SELECT idgenes FROM genes WHERE Ensembl_ID = '%s'""" % gene
+                        self._cursor.execute(select_gene)
+                        id_gene = self._cursor.fetchone()[0]
                     except mysql.connector.Error as err:
                         print(Fore.RED + str(err))
                     else:
                         try:
-                            self._cursor.execute(select_expr_mthd)
-                            id_exp_mthd = self._cursor.fetchone()[0]
+                            select_exp_lvl = """SELECT idexpressionlevel FROM expressionlevel WHERE length = '%s' AND eff_count = '%s' AND est_count = '%s' AND expression_level = '%s';""" % (
+                                exp_lvl[0], exp_lvl[1], exp_lvl[2], exp_lvl[3])
+                            self._cursor.execute(select_exp_lvl)
+                            id_exp_lvl = self._cursor.fetchone()[0]
                         except mysql.connector.Error as err:
                             print(Fore.RED + str(err))
                         else:
                             try:
-                                self._cursor.execute(select_organ)
-                                id_organ = self._cursor.fetchone()[0]
+                                select_ccondition = """SELECT COUNT(*) FROM conditions WHERE subcondition = '%s' AND condition_type = '%s' AND subcondition_type = '%s'""" % (
+                                    condition[0], condition[1], condition[2])
+                                self._cursor.execute(select_ccondition)
+                                count = self._cursor.fetchone()[0]
                             except mysql.connector.Error as err:
                                 print(Fore.RED + str(err))
                             else:
-                                try:
-                                    add_gene_has_exp = """INSERT INTO gene_has_expression(genes_idgenes, expressionlevel_idexpressionlevel, expression_method_idexpression_method, conditions_idconditions, organs_idorgans) VALUES('%s', '%s', '%s', '%s', '%s')""" % (id_gene, id_exp_lvl,id_exp_mthd, id_condition, id_organ)
-                                    self._cursor.execute(add_gene_has_exp)
-                                except mysql.connector.Error as err:
-                                    print(Fore.RED + str(err))
-                                    self._connexion.rollback()
-                                else:
-                                    self._connexion.commit()
+                                if count != 0:
+                                    try:
+                                        select_ccondition = """SELECT idconditions FROM conditions WHERE subcondition = '%s' AND condition_type = '%s' AND subcondition_type = '%s'""" % (
+                                            condition[0], condition[1], condition[2])
+                                        self._cursor.execute(select_ccondition)
+                                        id_condition = self._cursor.fetchone()[0]
+                                    except mysql.connector.Error as err:
+                                        print(Fore.RED + str(err))
+                                    else:
+                                        try:
+                                            select_cexpr_mthd = """SELECT COUNT(idexpression_method) FROM expression_method WHERE quantification_tool = '%s' AND expression_method_name = '%s'""" % (
+                                                tool, method)
+                                            self._cursor.execute(select_cexpr_mthd)
+                                            count = self._cursor.fetchone()[0]
+                                        except mysql.connector.Error as err:
+                                            print(Fore.RED + str(err))
+                                        else:
+                                            if count != 0:
+                                                try:
+                                                    select_expr_mthd = """SELECT idexpression_method FROM expression_method WHERE quantification_tool = '%s' AND expression_method_name = '%s'""" % (
+                                                        tool, method)
+                                                    self._cursor.execute(select_expr_mthd)
+                                                    id_exp_mthd = self._cursor.fetchone()[0]
+                                                except mysql.connector.Error as err:
+                                                    print(Fore.RED + str(err))
+                                                else:
+                                                    try:
+                                                        select_corgan = """SELECT COUNT(idorgans) FROM organs WHERE organ_name = '%s'""" % organ
+                                                        self._cursor.execute(select_corgan)
+                                                        count = self._cursor.fetchone()[0]
+                                                    except mysql.connector.Error as err:
+                                                        print(Fore.RED + str(err))
+                                                    else:
+                                                        if count != 0:
+                                                            try:
+                                                                select_organ = """SELECT idorgans FROM organs WHERE organ_name = '%s'""" % organ
+                                                                self._cursor.execute(select_organ)
+                                                                id_organ = self._cursor.fetchone()[0]
+                                                            except mysql.connector.Error as err:
+                                                                print(Fore.RED + str(err))
+                                                            else:
+                                                                try:
+                                                                    select_gene_has_exp = """SELECT COUNT(*) FROM gene_has_expression WHERE genes_idgenes = '%s' and expressionlevel_idexpressionlevel = '%s' and expression_method_idexpression_method = '%s' and conditions_idconditions = '%s' and organs_idorgans = '%s';""" % (
+                                                                        id_gene, id_exp_lvl, id_exp_mthd, id_condition,
+                                                                        id_organ)
+                                                                    self._cursor.execute(select_gene_has_exp)
+                                                                    count = self._cursor.fetchone()[0]
+                                                                except mysql.connector.Error as err:
+                                                                    print(Fore.RED + str(err))
+                                                                    self._connexion.rollback()
+                                                                else:
+                                                                    if count ==0:
+                                                                        try:
+                                                                            print(Fore.GREEN + "Trying to insert genes_has_expression :")
+                                                                            add_gene_has_exp = """INSERT INTO gene_has_expression(genes_idgenes, expressionlevel_idexpressionlevel, expression_method_idexpression_method, conditions_idconditions, organs_idorgans) VALUES('%s', '%s', '%s', '%s', '%s')""" % (
+                                                                            id_gene, id_exp_lvl, id_exp_mthd, id_condition,
+                                                                            id_organ)
+                                                                            self._cursor.execute(add_gene_has_exp)
+                                                                        except mysql.connector.Error as err:
+                                                                            print(Fore.RED + str(err))
+                                                                            self._connexion.rollback()
+                                                                        else:
+                                                                            self._connexion.commit()
 
     def close_database(self):
         """
@@ -595,14 +665,14 @@ class ImportData:
 
 def main():
     importdata = ImportData(path_directory, database_configuration, exp_filename)
-    # importdata.import_a_family('F00000')
-    # importdata.import_species(species_metadata_file)
-    # importdata.import_organs_expression_method_condition()
-    # importdata.import_expressionslevel('F00000')
-    # importdata.import_alignments('F00000')
-    # importdata.import_genes('F00000')
-    importdata.tmp_aligned_sequence('F00000')
-    # importdata.import_genes_has_expression('F00000')
+    importdata.import_a_family('F00000')
+    importdata.import_species(species_metadata_file)
+    importdata.import_organs_expression_method_condition()
+    importdata.import_expressionslevel('F00000')
+    importdata.import_alignments('F00000')
+    importdata.import_genes('F00000')
+    importdata.import_aligned_sequence('F00000')
+    importdata.import_genes_has_expression('F00000')
     importdata.close_database()
 
 main()

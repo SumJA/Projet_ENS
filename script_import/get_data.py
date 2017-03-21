@@ -71,34 +71,50 @@ class GetData:
             print(Fore.RED + "ERROR : Unable to open file : the file does not exist OR no read permissions")
 
     @staticmethod
-    def idensembl_to_nomgene(EnsemblID):
-        """
-        Get gene name from its EnsemblID
-        :param EnsemblID:
-        :return: ensembl_name
-        """
-        # FIXME : ne marche pas !!
-        server = "http://rest.ensembl.org"
-        ext = "/xrefs/id/" + EnsemblID + "?"
-
-        r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
-        if not r.ok:
-            r.raise_for_status()
-            sys.exit()
-
-        json_file = r.json()
-        ensembl_name = json_file[1]["display_id"]
-        return ensembl_name
-
-    @staticmethod
-    def create_gene_name_file():
+    def _create_gene_name_file():
         """
         execute R script : This script executes the R script to extract gene name.
         :return: None
         """
-        # FIXME : parsing impossible : demander un nouveau script.
         subprocess.check_call(['Rscript', 'GetEqEnsemblIdGeneName.R'], shell=False)
+
+    def get_gene_name(self, file: str):
+        i = 0  # count line
+        dict_gene = {}
+        table = os.path.join(os.getcwd(), file)
+        self.check_file_info(table)  # Check if the Seq2SpTab directory exists
+        try:
+            with open(table, 'r') as tsv:
+                for line in csv.reader(tsv, delimiter="\t"):
+                    if file == "table_equivalence.tsv":
+                        if i == 0:  # remove the first line : name of column
+                            i += 1
+                        else:
+                            ensembl_peptide_id = line[0]
+                            external_gene_name = line[2]
+                            dict_gene[ensembl_peptide_id] = external_gene_name
+                    elif file == "table_equivalence_mus.tsv":
+                        if i == 0:  # remove the first line : name of column
+                            i += 1
+                        else:
+                            id_gene = line[0]
+                            id_pept = line[1]
+                            gene_name = line[5]
+                            dict_gene[id_gene] = gene_name
+                            dict_gene[id_pept] = gene_name
+            return dict_gene
+        except OSError:
+            print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
+
+    def extract_gene_name(self, create_status: bool):
+        if not create_status:
+            # create gene name file :
+            self._create_gene_name_file()
+        # get the info:
+        data1 = self.get_gene_name("table_equivalence.tsv")
+        data2 = self.get_gene_name("table_equivalence_mus.tsv")
+        data = {**data1, **data2}
+        return data
 
     def _get_all_directories_path(self):
         """
@@ -209,19 +225,6 @@ class GetData:
                     gene_name[gene] = seq
             f.close()
             return gene_name
-        except OSError:
-            print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
-
-    def get_gene_name(self, file: str):
-        gene = {}
-        table = os.path.join(os.getcwd(), file)
-        self.check_file_info(table)  # Check if the Seq2SpTab directory exists
-        try:
-            with open(table, 'r') as tsv:
-                for line in csv.reader(tsv, delimiter="\t"):
-                    # print(line[0])
-                    break
-            return gene
         except OSError:
             print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
 
@@ -404,9 +407,11 @@ class GetData:
         try:
             with open(filename, 'r') as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
-                    if i != 0:
+                    if i == 0:
+                        i += 1
+                    else:
                         gene = line[0][:-7]
-                        while family == line[0][-6:]:
+                        if family == line[0][-6:]:
                             length = line[1]
                             eff_length = line[2]
                             est_counts = line[3]
@@ -419,7 +424,7 @@ class GetData:
                             big_l.append(expr_methd)
                             # extract gene information with their species_metadata_file and their aligned sequence:
                             genes[gene] = big_l
-                            break
+                            big_l = []
             return genes
         except OSError:
             print(Fore.RED + "ERROR : Failed to open expression file : ", file)
@@ -440,3 +445,4 @@ class GetData:
         """
         self.extract_expression_and_all_information_for_family(file, family)
         return self.data
+

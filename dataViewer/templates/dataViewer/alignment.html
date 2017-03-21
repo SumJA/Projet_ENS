@@ -9,36 +9,27 @@
         window.onload = function () {
             var rootDiv = document.getElementById('snippetDiv');
             /* global rootDiv */
-            var msa = window.msa;
+            // set your custom properties
+            // @see: https://github.com/wilzbach/biojs-vis-msa/tree/master/src/g
             var opts = {
                 el: rootDiv,
-                seq: ">seq1\nACCCGGGTTA\n>seq2\nAGGGGTCA",
-                bootstrapMenu: true,
+                vis: {
+                    conserv: false,
+                    overviewbox: false,
+                    seqlogo: true
+                },
                 conf: {
                     dropImport: true
+                },
+                zoomer: {
+                    menuFontsize: "12px",
+                    autoResize: true
                 }
             };
-            var m = new msa(opts);
-            m.importURL("/home/sumaira/Documents/Projet2/données/ProjetM1BioInfo/Version1/GeneTrees/F00000.txt", function () {
-                console.log("tree loaded");
-            });
-            m.g.on('all', function (name, data) {
-                var obj = {name: name, data: data};
-                if (inIframe()) {
-                    parent.postMessage(obj, "*")
-                }
-            });
-            function inIframe() {
-                try {
-                    return window.self !== window.top
-                } catch (e) {
-                    return true
-                }
-            }
         }
     </script>
 </head>
 <body>
-<div id='snippetDiv'></div>
+<div id='alignmentDIV'></div>
 </body>
 </html>

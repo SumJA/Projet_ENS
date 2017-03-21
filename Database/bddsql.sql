@@ -79,7 +79,7 @@ DROP TABLE IF EXISTS `mydb`.`genes` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`genes` (
   `idgenes` INT NOT NULL AUTO_INCREMENT,
-  `genes_name` VARCHAR(45) NOT NULL,
+  `genes_name` VARCHAR(45),
   `Ensembl_ID` VARCHAR(45) NOT NULL,
   `gene_family_idgene_family` INT NOT NULL,
   `species_idspecies` INT NOT NULL,
@@ -137,13 +137,12 @@ DROP TABLE IF EXISTS `mydb`.`conditions` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`conditions` (
   `idconditions` INT NOT NULL AUTO_INCREMENT,
-  `dvp_stage` VARCHAR(45) NULL DEFAULT NULL,
   `subcondition` VARCHAR(45) NOT NULL,
   `condition_type` VARCHAR(45) NULL DEFAULT NULL,
   `subcondition_type` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`idconditions`),
   UNIQUE INDEX `idconditions_UNIQUE` (`idconditions` ASC),
-  UNIQUE INDEX `conditions_all_uindex` (`dvp_stage` ASC, `subcondition` ASC, `condition_type` ASC, `subcondition_type` ASC))
+  UNIQUE INDEX `conditions_all_uindex` (`subcondition` ASC, `condition_type` ASC, `subcondition_type` ASC))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
@@ -155,12 +154,14 @@ DROP TABLE IF EXISTS `mydb`.`expressionlevel` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`expressionlevel` (
   `idexpressionlevel` INT NOT NULL AUTO_INCREMENT,
-  `length` INT NOT NULL,
-  `eff_count` FLOAT NOT NULL,
-  `est_count` INT NOT NULL,
-  `expression_level` FLOAT NOT NULL,
+  `length` VARCHAR(45) NOT NULL,
+  `eff_count` VARCHAR(45) NOT NULL,
+  `est_count` VARCHAR(45) NOT NULL,
+  `expression_level` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`idexpressionlevel`),
-  UNIQUE INDEX `idexpression_UNIQUE` (`idexpressionlevel` ASC))
+  UNIQUE INDEX `idexpression_UNIQUE` (`idexpressionlevel` ASC),
+  UNIQUE INDEX `expressionlevel_length_uindex` (`length` ASC, `est_count` ASC, `eff_count` ASC, `expression_level` ASC))
+
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 

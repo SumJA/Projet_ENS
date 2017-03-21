@@ -3,7 +3,6 @@ biocLite("biomaRt")
 
 library(biomaRt)
 
-setwd("/home/sumaira/Documents/Projet2/Projet_ENS/script_import/")
 listEnsembl(version=87)
 ensembl = useEnsembl(biomart="ensembl",version=87)
 
