@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .forms import SearchForm
-from .models import GeneFamily, Genes, Species, Alignment, Expressionlevel
+from .models import GeneFamily, Genes, Species, Alignment, Expressionlevel, AlignedSequence
 
 
 def search_data(request):
@@ -35,7 +35,8 @@ def results(request, item, typedata):
         try:
             family = GeneFamily.objects.get(gene_family_name=item)
             alignment = get_object_or_404(Alignment, gene_family_idgene_family=family.idgene_family)
-            # tree = show_tree(alignment.tree)
+            genes = Genes.objects.filter(gene_family_idgene_family=family.idgene_family)
+            sequence = AlignedSequence.objects.filter(genes_idgenes=genes)
         except GeneFamily.DoesNotExist:
             return render(request, 'research/Unknown.html', locals())
     elif typedata == 'Gene Ensembl ID':

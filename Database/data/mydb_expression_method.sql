@@ -1,0 +1,1 @@
+INSERT INTO mydb.expression_method (expression_method_name, quantification_tool) VALUES ('tpm', 'Kallisto');

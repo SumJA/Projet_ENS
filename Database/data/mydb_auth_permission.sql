@@ -1,0 +1,18 @@
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add log entry', 1, 'add_logentry');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change log entry', 1, 'change_logentry');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete log entry', 1, 'delete_logentry');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add group', 2, 'add_group');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change group', 2, 'change_group');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete group', 2, 'delete_group');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add permission', 3, 'add_permission');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change permission', 3, 'change_permission');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete permission', 3, 'delete_permission');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add user', 4, 'add_user');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change user', 4, 'change_user');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete user', 4, 'delete_user');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add content type', 5, 'add_contenttype');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change content type', 5, 'change_contenttype');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete content type', 5, 'delete_contenttype');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can add session', 6, 'add_session');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can change session', 6, 'change_session');
+INSERT INTO mydb.auth_permission (name, content_type_id, codename) VALUES ('Can delete session', 6, 'delete_session');
