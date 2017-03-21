@@ -1,0 +1,48 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+{% load static %}
+
+{# Load CSS and JavaScript #}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<section class="hero">
+    {% include "navbar.html" %}
+
+    <div class="container">
+        <section class="hero-heading text-center"><h1 class="hero-headline" id="hero-headline">Projet
+            ENS</h1>
+            <h2 class="hero-tagline">Home</h2>
+            <section class="hero-heading hero-buttons text-center">
+                <a href="#" class="btn-signup ga-signup"
+                   role="button">Learn more</a>
+            </section>
+        </section>
+        <section class="how-it-works" id="how-it-works">
+            <div class="container">
+                <div class="row">
+                    <form action="{% url " index
+                    " %}" method="get">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    {% buttons %}
+                    <button type="submit" class="btn btn-bold-revert btn-arrow-white">
+                        Submit >
+                    </button>
+                    {% endbuttons %}
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</section>

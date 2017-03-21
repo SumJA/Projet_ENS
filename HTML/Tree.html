@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tree of {{ family.gene_family_name }} family</title>
+
+
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+</head>
+<body>
+<h1>Tree of {{ family.gene_family_name }} family</h1>
+{# Load the tag library #}
+{% load bootstrap3 %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{# Load CSS and JavaScript #}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
+<script src="https://cdn.bio.sh/msa/latest/msa.min.gz.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="../../static/research/js/raphael-min.js"></script>
+<script type="text/javascript" src="../../static/research/js/jsphylosvg-min.js?1.29"></script>
+
+<script type="text/javascript">
+        window.onload = function () {
+            var dataObject = {newick: '{{ alignment.tree }}'};
+            phylocanvas = new Smits.PhyloCanvas(
+                dataObject,
+                'svgCanvas',
+                3200, 6000
+            );
+
+            var fasta = ">seq1\nACTG\n>seq2\nACGG\n";
+            var seqs = msa.io.fasta.parse(fasta);
+            var m = msa({
+                el: document.getElementById("msa"),
+                seqs: seqs
+            });
+            m.render();
+        };
+
+</script>
+<div id="svgCanvas"></div>
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <a href="Expr.html" title="See the expression data">Expression</a>
+            </li>
+            <li>
+                <a href="Align.html" title="See the alignment">Alignment</a>
+            </li>
+            <li>
+                <a href="Tree.html" title="See the tree">Tree</a>
+            </li>
+            <li>
+                <a href="All.html" title="See all data">All</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- /#sidebar-wrapper -->
+
+</body>
+</html>
