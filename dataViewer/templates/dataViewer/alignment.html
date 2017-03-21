@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alignment</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.bio.sh/msa/latest/msa.min.gz.js"></script>
+    <script type="javascript">
+        window.onload = function () {
+            var rootDiv = document.getElementById('snippetDiv');
+            /* global rootDiv */
+            var msa = window.msa;
+            var opts = {
+                el: rootDiv,
+                seq: ">seq1\nACCCGGGTTA\n>seq2\nAGGGGTCA",
+                bootstrapMenu: true,
+                conf: {
+                    dropImport: true
+                }
+            };
+            var m = new msa(opts);
+            m.importURL("/home/sumaira/Documents/Projet2/données/ProjetM1BioInfo/Version1/GeneTrees/F00000.txt", function () {
+                console.log("tree loaded");
+            });
+            m.g.on('all', function (name, data) {
+                var obj = {name: name, data: data};
+                if (inIframe()) {
+                    parent.postMessage(obj, "*")
+                }
+            });
+            function inIframe() {
+                try {
+                    return window.self !== window.top
+                } catch (e) {
+                    return true
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<div id='snippetDiv'></div>
+</body>
+</html>

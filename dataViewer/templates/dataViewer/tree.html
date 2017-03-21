@@ -1,0 +1,45 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+{% load static %}
+
+{# Load CSS and JavaScript #}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
+
+{% bootstrap_css %}
+
+<script type="text/javascript" href="{% static 'dataViewer/js/raphael-min.js' %}"></script>
+<script type="text/javascript" href="{% static 'dataViewer/js/jsphylosvg-min.js' %}"></script>
+
+        <script>
+            phylocanvas = new Smits.PhyloCanvas(
+                {newick: '{{ al }}'},		// Newick or XML string
+                'svgCanvas',	// Div Id where to render
+                1000, 1000		// Height, Width in pixels
+            );
+        </script>
+
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+<section class="spikenode-steps">
+    {% include "navbar.html" %}
+</section>
+
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="section-headline">Results</h1>
+                <h3 class="section-tagline">Family : {{ family.gene_family_name }}</h3>
+            </div>
+        </div>
+    </div>
+    <div id="svgCanvas">
+    </div>
+</section>
