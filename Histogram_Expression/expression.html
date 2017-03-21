@@ -1,0 +1,118 @@
+< html >
+< head >
+{  # Load the tag library #}
+{ % load
+bootstrap3 %}
+{ % load
+static %}
+{ % bootstrap_css %}
+{ % bootstrap_javascript %}
+{  # Display django.contrib.messages as Bootstrap alerts #}
+{ % bootstrap_messages %}
+
+{  # Load CSS and JavaScript #}
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/mystyle.css' %}" / >
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/css1.css' %}" / >
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/css2.css' %}" / >
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/css3.css' %}" / >
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/css5.css' %}" / >
+< link
+rel = "stylesheet"
+type = "text/css"
+href = "{% static 'css/css6.css' %}" / >
+
+< script
+src = "http://canvasjs.com/assets/script/canvasjs.min.js" > < / script >
+< script
+type = "text/javascript" >
+
+var
+datas = [];
+for (var
+i = 0;
+i < data.split("\n").length;
+i + +) {
+ligne = data.split("\n")[i];
+datas.push({y: '{{ alignment.tree }}';, label: '{{ alignment.tree }}'};);
+}
+var
+KcontroleTitle = "Gene's Expression in Kidney controle"
+var
+KrestrTitle = "Gene's Expression in Kidney restriction"
+var
+Tooth1Title = "Gene's Expression in tooth1"
+var
+Tooth2Title = "Gene's Expression in tooth2"
+var
+Tooth3Title = "Gene's Expression in tooth3"
+window.onload = function()
+{
+var
+chart = new
+CanvasJS.Chart("chartContainer", {
+
+title: {
+for {{gene.id}} in {{condition = kidneyControle}}
+text: KcontroleTitle
+for {{gene.id}} in {{condition = kidneyRestr}}
+text: KrestrTitle
+for {{gene.id}} in {{condition = tooth1}}
+text: Tooth1Title
+for {{gene.id}} in {{condition = tooth2}}
+text: Tooth2Title
+for {{gene.id}} in {{condition = tooth3}}
+text: Tooth3Title
+
+},
+animationEnabled: true,
+axisX:{
+interval: 1,
+gridThickness: 0,
+labelFontSize: 10,
+labelFontStyle: "normal",
+labelFontWeight: "normal",
+labelFontFamily: "Lucida Sans Unicode"
+
+},
+axisY2:{
+interlacedColor: "rgba(1,77,101,.1)",
+gridColor: "rgba(1,77,101,.1)"
+
+},
+
+data: [
+{
+type: "bar",
+name: "companies",
+axisYType: "secondary",
+color: "#014D65",
+dataPoints: datas
+}
+
+]});
+
+chart.render();
+}
+
+< / script >
+
+
+
+
+
+

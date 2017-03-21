@@ -10,4 +10,11 @@ def view_alignment():
     alignment_file = open("F00000.fasta", "r")
     for line in alignment_file.readlines():
         alignment = line
-    return alignment
+    print(alignment)
+
+
+def main():
+    VA = view_alignment()
+
+
+main()
