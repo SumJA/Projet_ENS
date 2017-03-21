@@ -1,0 +1,63 @@
+<html>
+<head>
+    {# Load the tag library #}
+    {% load bootstrap3 %}
+    {% load static %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+
+    {# Load CSS and JavaScript #}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
+    <script src="https://cdn.bio.sh/msa/latest/msa.min.gz.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="../../static/research/js/raphael-min.js"></script>
+    <script type="text/javascript" src="../../static/research/js/jsphylosvg-min.js?1.29"></script>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            var dataObject = {newick: '{{ alignment.tree }}'};
+            phylocanvas = new Smits.PhyloCanvas(
+                dataObject,
+                'svgCanvas',
+                3200, 6000
+            );
+
+            var fasta = ">seq1\nACTG\n>seq2\nACGG\n";
+            var seqs = msa.io.fasta.parse(fasta);
+            var m = msa({
+                el: document.getElementById("msa"),
+                seqs: seqs
+            });
+            m.render();
+        };
+    </script>
+</head>
+
+<body>
+
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="section-headline">Results</h1>
+                <h3 class="section-tagline">Family : {{ family.gene_family_name }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="svgCanvas"></div>
+
+    <div id="msa">Loading Alignment. Please wait...</div>
+</section>
+</body>
+</html>
