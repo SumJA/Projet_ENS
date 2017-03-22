@@ -1,0 +1,42 @@
+.events {
+    margin: 10px;
+    padding-top: 30px;
+    padding-bottom: 260px;
+    height: 50px;
+}
+
+.hero-headline {
+    color: antiquewhite;
+}
+
+.search {
+    background: transparent url("../img/slide-3.jpg") no-repeat top center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+    min-height: 100%;
+}
+
+.nav.navbar-nav.navbar-right li a {
+    color: #316A9D;
+}
+
+.navbar{
+    height: 20px;
+}
+
+.footer {
+  position: relative;
+  clear:both;
+  padding-top:20px;
+}
+
+.svgCanvas{
+    margin-bottom: auto;
+}
+

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    {# Load the tag library #}
+    {% load bootstrap3 %}
+    {% load static %}
+
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
+    {% bootstrap_javascript %}
+
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+</head>
+
+
+{% include "navbar.html" %}
+
+<body>
+<section class="hero">
+    <div class="search">
+        <div class="container">
+            <section class="hero-heading text-center"><h1 class="hero-headline" id="hero-headline">LBMC Converge Data
+                Viewer</h1>
+                <section class="hero-heading hero-buttons text-center">
+                    <a href="#how-it-works" class="btn-signup ga-signup"
+                       role="button">Learn more</a>
+                </section>
+            </section>
+
+            <br/>
+            <br/>
+
+            <section class="how-it-works" id="how-it-works">
+                <div class="container">
+                    <div class="row">
+                        <form action="{% url "index" %}" method="get">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-bold-revert btn-arrow-white">
+                                    Submit >
+                                </button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+</section>
+<section id="how-it-works" class="how-it-works">
+    <div class="events">
+        <div class="container">
+
+            <h3 class="title text-center">
+                What is the LBMC Converge Data Viewer ?<br>
+                <small>Progressus PRO has just the right feature set to help you get beautiful, maintainable website
+                    fast.
+                </small>
+            </h3>
+
+
+            <div class="row topspace-2x">
+                <figure class="col-md-3 col-sm-6 bottomspace-xs text-center">
+                    <i class="fa fa-cogs fa-4x color-accent"></i>
+                    <h4>Bootstrap-powered</h4>
+                    <p class="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque aliquid
+                        adipisci
+                        aspernatur. Soluta quisquam dignissimos earum quasi voluptate. Amet, dignissimos, tenetur vitae
+                        dolor
+                        quam iusto assumenda hic reprehenderit?</p>
+                </figure>
+                <figure class="col-md-3 col-sm-6 bottomspace-xs text-center">
+                    <i class="fa fa-paper-plane-o fa-4x color-accent"></i>
+                    <h4>Fat-free</h4>
+                    <p class="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores,
+                        commodi,
+                        sequi
+                        quis ad fugit omnis cumque a libero error nesciunt molestiae repellat quos perferendis numquam
+                        quibusdam
+                        rerum repellendus laboriosam reprehenderit! </p>
+                </figure>
+                <figure class="col-md-3 col-sm-6 bottomspace-xs text-center">
+                    <i class="fa fa-cc fa-4x color-accent"></i>
+                    <h4>Creative Commons</h4>
+                    <p class="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem, vitae,
+                        perferendis, perspiciatis nobis voluptate quod illum soluta minima ipsam ratione quia numquam
+                        eveniet
+                        eum reprehenderit dolorem dicta nesciunt corporis?</p>
+                </figure>
+                <figure class="col-md-3 col-sm-6 bottomspace-xs text-center">
+                    <i class="fa fa-life-ring fa-4x color-accent"></i>
+                    <h4>Author's support</h4>
+                    <p class="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias, excepturi,
+                        maiores,
+                        dolorem quasi reprehenderit illo accusamus nulla minima repudiandae quas ducimus reiciendis odio
+                        sequi
+                        atque temporibus facere corporis eos expedita? </p>
+                </figure>
+            </div> <!-- /row  -->
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="events">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h3 class="title text-center">Research teams<br>
+                        <small>This project involves research teams from 3 labs all based in Lyon.</small>
+                    </h3>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div class="row">
+                <div class="col-md-4 row-spacing"><a href="http://www.ens-lyon.fr/LBMC" target="_blank"><img
+                        src="{% static "img/mini.jpeg" %}" alt="Logo LBMC" title="LBMC"
+                        class="img-responsive center-block" style="max-height:100px"></a>
+                </div>
+                <div class="col-md-4 row-spacing"><a href="https://lbbe.univ-lyon1.fr/?lang=en" target="_blank"><img
+                        src="{% static "img/Logo_lbbe.png" %}" alt="Logo LBBE" title="logo LBBE"
+                        class="img-responsive center-block" style="max-height:100px"></a>
+                </div>
+                <div class="col-md-4 row-spacing"><a href="http://umr5023.univ-lyon1.fr/" target="_blank"><img
+                        src="{% static "img/logo.png" %}" class="img-responsive center-block" alt="Logo LEHNA"
+                        title="logo LEHNA" style="max-height:100px"></a>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div class="row">
+                <div class="col-md-4 row-spacing">
+                    <a href="http://www.ens-lyon.fr/"
+                       target="_blank"><img src="http://www.ens-lyon.fr/LBMC/images/logos/logo-1.png"
+                                            alt="Logo ENS" title="logo" class="img-responsive center-block"
+                                            style="max-height:100px"></a>
+                </div>
+                <div class="col-md-4 row-spacing"><a href="http://www.univ-lyon1.fr/" target="_blank"><img
+                        src="http://www.ens-lyon.fr/LBMC/images/logos/logoucbl.jpg" alt="Logo UCBL"
+                        title="logoucbl" class="img-responsive center-block" style="max-height:100px"></a>
+                </div>
+                <div class="col-md-4 row-spacing"><a href="http://www.cnrs.fr/" target="_blank"><img
+                        src="http://www.ens-lyon.fr/LBMC/images/logos/logo-cnrs.jpg" alt="Logo CNRS" title="logo cnrs"
+                        class="img-responsive center-block" style="max-height:100px"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% include "footer.html" %}
+
+</body>
+</html>

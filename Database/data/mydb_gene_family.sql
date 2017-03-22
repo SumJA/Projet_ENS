@@ -1,0 +1,1 @@
+INSERT INTO mydb.gene_family (gene_family_name) VALUES ('F00000');
