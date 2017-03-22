@@ -94,6 +94,27 @@
                 ]
             });
             chart.render();
+
+            // Create table of expression level :
+            // Find a <table> element with id="myTable":
+            var x = document.getElementById("tableau");
+
+            {% for expr in ghexp %}
+                // Create an empty <tr> element and add it to the 1st position of the table:
+                var row = x.insertRow(1);
+                // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                // Add some text to the new cells:
+                cell1.innerHTML = "{{ expr.genes_idgenes.ensembl_id }}";
+                cell2.innerHTML = "{{ expr.expressionlevel_idexpressionlevel.length }}";
+                cell3.innerHTML = "{{ expr.expressionlevel_idexpressionlevel.eff_count }}";
+                cell4.innerHTML = "{{ expr.expressionlevel_idexpressionlevel.est_count }}";
+                cell5.innerHTML = "{{ expr.expressionlevel_idexpressionlevel.expression_level }}";
+            {% endfor %}
         };
     </script>
 </head>
@@ -156,42 +177,40 @@
                 <h1 class="section-headline">Expression level</h1>
 
                 <div class="row topspace-2x">
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
+                    <figure class="col-lg-4 col-sm-3 text-center">
                         <h4>Organ</h4>
                         <p class="text-center">{{ organ }}</p>
                     </figure>
 
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
+                    <figure class="col-lg-4 col-sm-3 text-center">
                         <h4>Condition</h4>
                         <p class="text-center">Subcondition : {{ subcondition }}
                             <br>Development stage : {{ type_subcdition }}
                             <br>Condition type : {{ type_cond }}</p>
                     </figure>
 
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
-                        <h4>Expression level</h4>
-                        <p class="text-center">Tool : {{ method }}
-                            <br>{{ typeexp }} : {{ explvl }}</p>
-                    </figure>
-
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
-                        <h4>Length</h4>
-                        <p class="text-center">{{ length }}</p>
-                    </figure>
-
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
-                        <h4>Effective length</h4>
-                        <p class="text-center">{{ eff_count }}</p>
-                    </figure>
-
-                    <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
-                        <h4>Estimated length</h4>
-                        <p class="text-center">{{ est_count }}</p>
+                    <figure class="col-lg-4 col-sm-3 text-center">
+                        <h4>Expression level Tool</h4>
+                        <p class="text-center">{{ method }}
                     </figure>
                 </div>
             </div>
         </div>
     </section>
+
+    <div>
+        <table id="tableau" class="table" border>
+            <thead>
+            <tr>
+                <th>Gene</th>
+                <th>Length</th>
+                <th>Effective length<</th>
+                <th>Estimated length</th>
+                <th>Expression level - {{ typeexp }} </th>
+            </tr>
+            </thead>
+        </table>
+    </div>
 
     <div class="container">
         <div class="row">
@@ -201,6 +220,7 @@
         </div>
     </div>
 </section>
+
 
 </body>
 </html>
