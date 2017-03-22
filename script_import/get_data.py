@@ -2,14 +2,14 @@ import os
 from colorama import Fore  # color console module
 from script_import import argparser  # command-line parsing module
 import csv  # csv / tsv reader module
-import sys
-import requests
 import subprocess
 
 # Get argument and parse them :
 path_directory = argparser.args.directory  # path to the directory with data to import
 file_name = argparser.args.expression  # name of Expression level file - the data will be import for every family on it.
 species_file = argparser.args.species  # name of species_metadata_file metadata file
+if argparser.args.family:
+    family = argparser.args.family  # name of the family
 
 
 class GetData:

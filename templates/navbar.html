@@ -1,28 +1,12 @@
-{# Load the tag library #}
-{% load bootstrap3 %}
-{% load static %}
-
-<link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
-
-{# Load CSS and JavaScript #}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages %}
-
-<nav class="navbar">
-    <div class="container">
-        <div class="collapse navbar-collapse" id="primary-navbar">
-            <ul class="nav navbar-nav navbar-right navbar-lean">
-                <li><a href="{% url 'index' %}">Home page</a></li>
-                <li><a href="#" data-toggle="modal">Learn more</a></li>
-            </ul>
+<div class="navbar navbar-dual navbar-default navbar-fixed-top ontop-now">
+    <nav class="navbar">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="primary-navbar">
+                <ul class="nav navbar-nav navbar-right navbar-lean">
+                    <li><a href="{% url 'index' %}">Home page</a></li>
+                    <li><a href="#how-it-works" data-toggle="modal">Learn more</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>

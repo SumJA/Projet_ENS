@@ -1,31 +1,36 @@
-{# Load the tag library #}
-{% load bootstrap3 %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unknown data</title>
+    {# Load the tag library #}
+    {% load bootstrap3 %}
+    {% load static %}
 
-{# Load CSS and JavaScript #}
-<link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css1.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css2.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css3.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css5.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/css6.css' %}"/>
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mystyle.css' %}"/>
 
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages %}
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+</head>
 
+<body>
 <section class="spikenode-steps">
     {% include "navbar.html" %}
 </section>
 
-<section class="how-it-works" id="how-it-works">
+<section class="section section-cta">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="section-headline">Error</h1>
-                <h3 class="section-tagline"><p>Unknown {{ item }}</p></h3>
-            </div>
+        <h1 class="title text-center">Error</h1>
+        <h3 class="title text-center">Unknown {{ item }}</h3>
+        <div class="title text-center">
+            <p>{{ item }} is not in the database.<br>
+                <span><a href="{% url 'index' %}">Please try another search.</a></span></p>
         </div>
     </div>
 </section>
+
+</body>
+</html>

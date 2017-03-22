@@ -1,8 +1,6 @@
-import textwrap
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from .forms import SearchForm
-from .models import GeneFamily, Genes, Species, Alignment, Expressionlevel, AlignedSequence
+from .models import GeneFamily, Genes, Species, Alignment, AlignedSequence, GeneHasExpression
 
 
 def search_data(request):
@@ -35,11 +33,26 @@ def results(request, item, typedata):
     if typedata == 'Gene family name':
         try:
             seq = ""
+            data =""
             family = GeneFamily.objects.get(gene_family_name=item)
             alignment = get_object_or_404(Alignment, gene_family_idgene_family=family.idgene_family)
             sequences = AlignedSequence.objects.filter(genes_idgenes__gene_family_idgene_family=family.idgene_family).select_related()
+            ghexp = GeneHasExpression.objects.filter(genes_idgenes__gene_family_idgene_family=family.idgene_family).select_related()
             for sequence in sequences:
                 seq += ">"+sequence.genes_idgenes.ensembl_id+"\n"+sequence.sequence+"\n"
+            for exp in ghexp:
+                organ = exp.organs_idorgans.organ_name
+                subcondition = exp.conditions_idconditions.subcondition
+                type_subcdition = exp.conditions_idconditions.subcondition_type
+                type_cond = exp.conditions_idconditions.condition_type
+                method = exp.expression_method_idexpression_method.quantification_tool
+                typeexp = exp.expression_method_idexpression_method.expression_method_name
+                explvl = exp.expressionlevel_idexpressionlevel.expression_level
+                length = exp.expressionlevel_idexpressionlevel.length
+                eff_count = exp.expressionlevel_idexpressionlevel.eff_count
+                est_count = exp.expressionlevel_idexpressionlevel.est_count
+                geneexp = exp.genes_idgenes.ensembl_id
+                data += str(geneexp)+"\t"+str(length)+"\t"+str(eff_count)+"\t"+str(est_count)+"\t"+str(explvl)+"\n"
         except GeneFamily.DoesNotExist:
             return render(request, 'research/Unknown.html', locals())
     elif typedata == 'Gene Ensembl ID':
@@ -58,15 +71,3 @@ def results(request, item, typedata):
         except Species.DoesNotExist:
             return render(request, 'research/Unknown.html', locals())
     return render(request, 'research/results.html', locals())
-
-
-def expr(request, item):
-    # exemple pour tooth 3
-    try:
-        expressionlevel = Expressionlevel.objects.all()
-        geneid = Genes.objects.get(ensembl_id=item)
-    except Expressionlevel.DoesNotExist:
-        return render(request, 'research/Unknown.html', locals())
-    tooth3 = open("Tooth3.html", "r")
-    texte = tooth3.read()
-    return HttpResponse(texte)

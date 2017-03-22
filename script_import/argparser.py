@@ -9,4 +9,6 @@ parser.add_argument("-d", "--directory", help='Path to data directory', required
 parser.add_argument("-e", "--expression", help='Expression level exp_filename', required=True)
 # species_metadata_file metadata file :
 parser.add_argument("-s", "--species", help='Species metadata exp_filename', required=True)
+# family name :
+parser.add_argument("-f", "--family", help='Gene family name', required=False)
 args = parser.parse_args()

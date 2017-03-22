@@ -17,6 +17,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jquery" level="application" />
     <orderEntry type="library" name="msa.gz" level="application" />
+    <orderEntry type="library" name="canvasjs" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

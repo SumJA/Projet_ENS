@@ -529,10 +529,10 @@ class ImportData:
         """
         expr = self._get_data.extract_expression_for_family(family=family, file=self.expression_filename)
         for i in expr:
-            lenght = int(i[0])
-            eff_lenght = float(i[1])
-            est_counts = int(i[2])
-            exp_level = float(i[3])
+            lenght = i[0]
+            eff_lenght = i[1]
+            est_counts = i[2]
+            exp_level = i[3]
             try:
                 print(Fore.GREEN + "Trying to insert expression level :", i)
                 add_expressionlevel = """INSERT INTO expressionlevel(length, eff_count, est_count, expression_level) VALUES('%s', '%s', '%s', '%s');""" % (lenght, eff_lenght, est_counts, exp_level)
@@ -665,14 +665,14 @@ class ImportData:
 
 def main():
     importdata = ImportData(path_directory, database_configuration, exp_filename)
-    importdata.import_a_family('F00000')
+    importdata.import_a_family('F00002')
     importdata.import_species(species_metadata_file)
     importdata.import_organs_expression_method_condition()
-    importdata.import_expressionslevel('F00000')
-    importdata.import_alignments('F00000')
-    importdata.import_genes('F00000')
-    importdata.import_aligned_sequence('F00000')
-    importdata.import_genes_has_expression('F00000')
+    importdata.import_expressionslevel('F00002')
+    importdata.import_alignments('F00002')
+    importdata.import_genes('F00002')
+    importdata.import_aligned_sequence('F00002')
+    importdata.import_genes_has_expression('F00002')
     importdata.close_database()
 
 main()
