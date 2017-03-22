@@ -1,68 +1,170 @@
-Introduction :
+# LBMC Converge data viewer :
 
-We have data on gene families. For each gene, we have data about genes alignments, genes tree ans genes expression.
-In this web application, we group all this data. This website makes it possible to visualize all the data, for a gene
-or for a family.
+This website is made to present the data and the results of two research projects on the convergent evolution:
+Convergdent and Convergenomix (http://lbbe.univ-lyon1.fr/convergenomix/). 
 
-For this project, you need to have a python version superior to 3.4.
+For the moment, only the visualisation of an entire family is possible, and the website is configure to work locally.
 
-I Data Base
- 1. Tables
+The database of the website is also available in this repository with a script to import the research results on it.
 
-Genes : PRIMARY KEY idgenes, genes_name, Ensembl_ID, #species_idspecies, #gene_family_idgene_family
-Genes_family : PRIMARY KEY idgene_family, gene_family_name
-Expressionlevel : PRIMARY KEY idexpressionlevel, length, eff_count, est_count, expression_level
-Expression_method : PRIMARY KEY idexpression_method, expression_method_name, quantification_tool
-Gene_has_expression : PRIMARY KEY idgene_has_expression, #gene_idgenes, #expressionlevel_idexpressionlevel, #expression_method_idimpression_method, #conditions_idconditions, #organs_idorgans
-Organs : PRIMARY KEY idorgans, organ_name
-Alignment (TREE) : PRIMARY KEY idAlignment, tree, #gene_family_idgene_family
-Aligned_sequences : PRIMARY KEY idaligned_sequence, sequence, #Alignment_idAlignment, #genes_idgenes
-Conditions : PRIMARY KEY idconditions, subcondition, condition_type, subcondition_type
-Species : PRIMARY KEY idspecies, species_name, species_Taxid, assembly_name, assembly_source, species_Classification
+ ## Getting Started
+ _Prerequisites :_
+To use the database importation scripts you need to have the version 3.5 (or above) of python.
+The scripts work only if the data respect the standard format.
 
-In bddsqlsql.sql : script for creation of the database
-In Database/data : script for the insertion of datas in the data base.
+The website is build with the framework Django1.10.5 => Please make sure that you have Django1.10.5 installed.
 
+### Installing step 1 :
 
- 2. How to import data
+First of all you need to create the database and import data on it :
 
-In script_import/argparser.py : Arguments for importing the data
+**I Data Base**
 
-If you want to complete the database, the format of the datas must to respect the same format of our datas. 
+ * Creation script of the database : bddsqlsql.sql
+ You can found this script in the Database directory.
+ 
+ * A png of the database's relational model is available in the Database directory.
+ 
+ * Test data : 
+ You can import the data of the gene family 'F00000' to test the app.
+ The directory : Database/data contains all the script allowing you to insert the information available dor this family.
+ You need to have a mysql server and its configuration information.
 
-II Django
+ * The data importation scripts are in the directory script_import:
+    * argparser.py : Arguments for importing the data
+    * config_db.py : The database configuration
+    * get_data.py : Extract data from files.
+    * import_data.py : Import data in the database.
+    * GetEqEnsemblIdGeneName.R : Create gene name and ensembl ID equivalence tsv tables. 
 
- 1. Installation
+    **_1. Create the database :_**
+    
+    To create the database you just need to run the bddsqlsql.sql on your mysql server.
+    
+    **_2. Configure the database info_**
+    
+    Open the config_db.py file and edit the databse information :
+    
+    For exemple :
+    ```python
+    config = {
+      'user': 'USERNAME',
+      'password': '*********',
+      'host': 'localhost',
+      'database': 'mydb',
+      'raise_on_warnings': True,
+    }
+    ```
+    
+    **_3. Import data_**
+ 
+_Running the importation :_
+To import data into the database execute the import_data.py script in your terminal.
+You'll need to give some arguments :
 
-sudo apt-get install python3-pip
-sudo aptitude install python3-django
-sudo pip install django
+    `python3.5 import_data.py -d DIRECTORY_PATH -e EXPRESSIN_LEVEL_FILENAME -s SPECIES_METADATA_FILENAME [-f FAMILY_NAME]`
+
+For more information on the arguments, execute the following code:
+    
+    'python3.5 argparser.py --help'
+ 
+   **_4.Scripts information :_**
+
+   * argparser.py : Arguments for importing the data.
+   * config_db.py : The database configuration. You need to configure this file before inserting data in the database.
+   * get_data.py : Extract data from files. To use this script you need to give arguments : 
+   for the moment you can only import data family by family. To import data from an expression file you can overwrite the
+   method import_a_expr of the ImportData class in import_data.py.
+   
+   `python3.5 import_data.py -d DIRECTORY_PATH -e EXPRESSIN_LEVEL_FILENAME -s SPECIES_METADATA_FILENAME -f FAMILY_NAME`
+
+   For more information on the arguments, execute the following code:
+    
+    'python3.5 argparser.py --help'
+   This script contains a class allowing the extraction of data from the directory given in argument.
+   * import_data.py : Import data in the database. See the previous section for more information.
+   * GetEqEnsemblIdGeneName.R : Create gene name and ensembl ID equivalence tsv tables. 
+
+   For more information about a script: 
+   
+    'python3.5 [script_name].py --help'
+   
+### Installing step 2:
+
+You now have a database.
+Lets see how to configure the website :
+
+**II Django**
+
+ **_1. Installation_**
+
+    'sudo apt-get install python3-pip
+    sudo aptitude install python3-django
+    sudo pip install django'
 
 OR
 
-pip install Django==1.10
+    'pip install Django==1.10'
 
+Fore more information or if you have a problem installing Django see 
+https://docs.djangoproject.com/en/1.10/topics/install/#installing-official-release 
 
- 2. Utilization
+ **_2. Configuration_**
 
-You just need to parameterize the database in /ProjetENS/settings.py.
-Now, to visualize the web site, you need to run (in a local server) the file view.py
-who is in research folder.
+You just need to configure Django. Open the Django's settings file : /ProjetENS/settings.py.
+* Configure the database connexion :
+Here the configuration to run the website locally: 
+Fore more information see https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+```python
+       DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mydb',
+        'USER': 'USERNAME',
+        'PASSWORD': '********',
+        'HOST': 'localhost',
+        'PORT': 3306,
+        'TEST': {
+            'NAME': 'mytestdatabase',
+        },
+    }
+}
+   ```
+* If you want to run the app on production make sure to turn the Debug off:
 
-DANS DJANGO LANCER LE FICHIER VIEW.PY
+   ```python
+       DEBUG = True
+   ```
+For Quick-start development settings - unsuitable for production see 
+https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-
-III Data visualization
-All this part are do in JavaScript. All that you need to execute this visualization is include in the differents
-scripts.
-
- 1. Expression
-You can see the expressions in various histogram. There is a graph for eatch organ and condition. In the y axes,
-you have the ensembl's identifiant of all genes that have an expression in the same organ and condition as the genes
-that you search.
-
- 2. Alignment
-Inut : format fasta
-
- 3. Tree
-Input : format newick
+  **_3. Run the website locally_**
+  
+ We are going to use Django's development server. Just execute this in the terminal :
+  
+  `python3.5 manage.py runserver x.x.x.x:8080`
+   
+  where x.x.x.x is ip and 8080 is the port.
+  Now all you need it to enter x.x.x.x:8080 in browser on the network connected device.
+  For more information see https://docs.djangoproject.com/en/1.10/intro/tutorial01/
+  
+  **_4. The app structure_**
+  
+  The website files are in the ProjetENS directory. In this directory you can find different files :
+  * The outer ProjetENS/ root directory is just a container for the project. Its name doesn’t matter to Django; you can rename it to anything you like.
+  * manage.py: A command-line utility that lets you interact with this Django project in various ways. You can read all the details about manage.py in django-admin and manage.py.
+  * The inner ProjetENS/ directory is the actual Python package for the project. Its name is the Python package name you’ll need to use to import anything inside it (e.g. mysite.urls).
+  * ProjetENS/__init__.py: An empty file that tells Python that this directory should be considered a Python package. If you’re a Python beginner, read more about packages in the official Python docs.
+  * ProjetENS/settings.py: Settings/configuration for this Django project. Django settings will tell you all about how settings work.
+  * ProjetENS/urls.py: The URL declarations for this Django project; a “table of contents” of the Django-powered site. You can read more about URLs in URL dispatcher.
+  * ProjetENS/wsgi.py: An entry-point for WSGI-compatible web servers to serve the project. See How to deploy with WSGI for more details.
+  
+  Polls App :
+  With Django a project is a collection of configuration and apps for a particular website. A project can contain multiple apps. An app can be in multiple projects.
+  * ProjetENS/research/ : the app to visualise the data on the database.
+  
+  ==> Fore more information see https://docs.djangoproject.com/en/1.10/intro/tutorial01/
+  
+   ## Data visualization :
+   All you need to do is write a family name/Gene name/Gene EnsemblID/Species name in the search field. (Note that for the moment only the search by family name is available).
+   
