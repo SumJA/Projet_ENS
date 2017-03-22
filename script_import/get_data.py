@@ -79,6 +79,11 @@ class GetData:
         subprocess.check_call(['Rscript', 'GetEqEnsemblIdGeneName.R'], shell=False)
 
     def get_gene_name(self, file: str):
+        """
+        Extract gene names from a file.
+        :param file: (str) a tsv file
+        :return: dict_gene (dict) a dictionary with gene ensembl ID as key and gene name as value.
+        """
         i = 0  # count line
         dict_gene = {}
         table = os.path.join(os.getcwd(), file)
@@ -107,6 +112,12 @@ class GetData:
             print(Fore.RED + "ERROR : Failed to open alignment file : ", file)
 
     def extract_gene_name(self, create_status: bool):
+        """
+        Extract gene name info and create a tsv file with gene ensembl ID and their name if needed.
+        :param create_status: (bool) : True -> Create the gene name files.
+                                        False -> Don't create the gene name files.
+        :return: data (dict) a dictionary with the ensembl ID as keys and name as values.
+        """
         if not create_status:
             # create gene name file :
             self._create_gene_name_file()

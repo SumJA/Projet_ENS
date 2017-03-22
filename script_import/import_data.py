@@ -9,6 +9,7 @@ path_directory = get_data.path_directory
 exp_filename = get_data.file_name
 species_metadata_file = get_data.species_file
 database_configuration = config_db.config
+family = get_data.family
 
 
 class ImportData:
@@ -65,8 +66,8 @@ class ImportData:
         Imports a family in the database.
         If you want to import all the families from the alignment directory, use the import_families method.
 
-        :param family:
-        :return:
+        :param family: (str) a family nmae.
+        :return: None
         """
         add_family_name = """INSERT INTO gene_family(gene_family_name) VALUE ('%s')""" % family
         try:
@@ -81,7 +82,7 @@ class ImportData:
     def import_species(self, species_filename: str):
         """
         Imports all species from a species metadata file.
-
+        :param species_filename: (str) a species metadata filename.
         :return: None
         """
         species = self._get_data.extract_all_species(species_filename)
@@ -177,7 +178,7 @@ class ImportData:
         If you want to extract all the information from the file, use the import_organs_expression_method_condition
         function instead of this one.
 
-        :return:
+        :return: none
         """
         # Extract information from file:
         conditions = self._get_data.extract_all_expression_info()
@@ -185,8 +186,6 @@ class ImportData:
             subcondition = info[3][0]
             cond_type = info[3][1]
             subcondition_type = info[3][2]
-            # FIXME : dvp_stage à définir !
-            # check for double NULL value :
             select_conditions = """SELECT COUNT(*) FROM conditions WHERE subcondition = '%s' and condition_type = '%s' and subcondition_type = '%s';""" % (
             subcondition, cond_type, subcondition_type)
             add_conditions = """INSERT INTO conditions(subcondition, condition_type, subcondition_type) VALUES ('%s', '%s', '%s')""" % (subcondition, cond_type, subcondition_type)
@@ -278,61 +277,10 @@ class ImportData:
             else:
                 self._connexion.commit()
 
-    def tmp_aligned_sequence(self, family: str):
-        l = []
-        sequence_data = self._get_data.extract_gene_and_alignment_for_family(family)
-        try:
-            select_gene = """SELECT idgene_family FROM gene_family WHERE gene_family_name = '%s';""" % family
-            self._cursor.execute(select_gene)
-            family_id = self._cursor.fetchone()[0]
-        except mysql.connector.Error as err:
-            print(Fore.RED + str(err))
-        else:
-            try:
-                select_gene = """SELECT idgenes, Ensembl_ID FROM genes WHERE gene_family_idgene_family = '%s';""" % family_id
-                self._cursor.execute(select_gene)
-                gene_info = self._cursor.fetchall()
-                for i in gene_info:
-                    l.append(i[1])  # construct the list of gene ensembl ID found.
-            except mysql.connector.Error as err:
-                print(Fore.RED + str(err))
-            else:
-                if gene_info:
-                    try:
-                        select_gene = """SELECT idAlignment FROM Alignment WHERE gene_family_idgene_family = '%s';""" % family_id
-                        self._cursor.execute(select_gene)
-                        alignment_id = self._cursor.fetchone()[0]
-                    except mysql.connector.Error as err:
-                        print(Fore.RED + str(err))
-                    else:
-                        if alignment_id:
-                            for gene in l:
-                                for i in gene_info:
-                                    try:
-                                        sequence = sequence_data[gene]
-                                        # check if the data already exists :
-                                        select_sequence = """SELECT COUNT(*) FROM aligned_sequence WHERE sequence = '%s' and Alignment_idAlignment = '%s' and genes_idgenes = '%s';""" % (sequence, alignment_id, i[0])
-                                        self._cursor.execute(select_sequence)
-                                        print(self._cursor)
-                                        count = self._cursor.fetchone()[0]
-                                    except mysql.connector.Error as err:
-                                        print(Fore.RED + str(err))
-                                    else:
-                                        if count == 0:
-                                            try:
-                                                print(Fore.GREEN + "Trying to insert sequences :", sequence)
-                                                add_sequence = """INSERT INTO aligned_sequence(sequence, Alignment_idAlignment, genes_idgenes) VALUE('%s', '%s', '%s');""" % (sequence, alignment_id, i[0])
-                                                self._cursor.execute(add_sequence)
-                                            except mysql.connector.Error as err:
-                                                print(Fore.RED + str(err))
-                                                self._connexion.rollback()
-                                            else:
-                                                self._connexion.commit()
-
     def import_aligned_sequence(self, family: str):
         """
         Imports aligned sequence from the alignment file in the aligned_sequence table.
-
+        :param family: (str) : a family name.
         :return: None
         """
         genes = self._get_data.extract_gene_and_alignment_for_family(family)
@@ -446,7 +394,7 @@ class ImportData:
     def import_genes(self, family: str):
         """
         Imports genes information into the database's genes table.
-
+        :param family: (str) a family name
         :return: None
         """
         genes = self._get_data.extract_species_and_sequence_for_gene(family)
@@ -524,7 +472,7 @@ class ImportData:
     def import_expressionslevel(self, family: str):
         """
         Imports expression information from the expression file in the database's expressionlevel table.
-
+        :param family: (str): a family name
         :return: None
         """
         expr = self._get_data.extract_expression_for_family(family=family, file=self.expression_filename)
@@ -545,8 +493,8 @@ class ImportData:
 
     def import_genes_has_expression(self, family: str):
         """
-        Imports he foreign key needed in the genes_has_expression table.
-
+        Imports the foreign keys needed in the genes_has_expression table.
+        :param family: (str) a family name
         :return: None
         """
         data = self._get_data.extract_expression_gene(self.expression_filename, family)
@@ -651,6 +599,30 @@ class ImportData:
                                                                         else:
                                                                             self._connexion.commit()
 
+    def import_data_family(self, family):
+        """
+        USe this function to import the data for a family
+        :param family: a family name
+        :return: None
+        """
+        self.import_a_family(family)
+        self.import_species(species_metadata_file)
+        self.import_organs_expression_method_condition()
+        self.import_expressionslevel(family)
+        self.import_alignments(family)
+        self.import_genes(family)
+        self.import_aligned_sequence(family)
+        self.import_genes_has_expression(family)
+        self.close_database()
+
+    def import_a_expr(self, file: str):
+        """
+        Define this function to import the data from an expression file.
+        :param file: (str) an expression file path.
+        :return:
+        """
+        pass
+
     def close_database(self):
         """
         Close the connexion to the database.
@@ -665,14 +637,6 @@ class ImportData:
 
 def main():
     importdata = ImportData(path_directory, database_configuration, exp_filename)
-    importdata.import_a_family('F00002')
-    importdata.import_species(species_metadata_file)
-    importdata.import_organs_expression_method_condition()
-    importdata.import_expressionslevel('F00002')
-    importdata.import_alignments('F00002')
-    importdata.import_genes('F00002')
-    importdata.import_aligned_sequence('F00002')
-    importdata.import_genes_has_expression('F00002')
-    importdata.close_database()
+    importdata.import_data_family(family)
 
 main()

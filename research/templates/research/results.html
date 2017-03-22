@@ -31,15 +31,15 @@
             phylocanvas = new Smits.PhyloCanvas(
                 dataObject,
                 'svgCanvas',
-                5000,6000
+                5000, 6000
             );
 
             // save tree as svg :
             var svgSource = phylocanvas.getSvgSource();
-            if(svgSource){
-				$('#download-link')[0].href = "data:image/svg+xml," + svgSource;
-				$('#download-button').show();
-			}
+            if (svgSource) {
+                $('#download-link')[0].href = "data:image/svg+xml," + svgSource;
+                $('#download-button').show();
+            }
 
             //alignment viewer
             var fasta = {% autoescape off %}'{{ seq | linebreaksbr }}'{% endautoescape %};
@@ -164,8 +164,8 @@
                     <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
                         <h4>Condition</h4>
                         <p class="text-center">Subcondition : {{ subcondition }}
-                        <br>Development stage : {{ type_subcdition }}
-                        <br>Condition type : {{ type_cond }}</p>
+                            <br>Development stage : {{ type_subcdition }}
+                            <br>Condition type : {{ type_cond }}</p>
                     </figure>
 
                     <figure class="col-md-2 col-sm-6 bottomspace-xs text-center">
@@ -188,10 +188,11 @@
                         <h4>Estimated length</h4>
                         <p class="text-center">{{ est_count }}</p>
                     </figure>
-                </div> <!-- /row  -->
+                </div>
             </div>
         </div>
     </section>
+
     <div class="container">
         <div class="row">
             <div class="col-md-12">
